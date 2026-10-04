@@ -99,10 +99,30 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('invoice-cheque').innerText = chequeVal.toFixed(2);
         }
         
+        // Update Customer & Cashier Info
+        const custEl = document.getElementById('invoice-customer');
+        if (custEl) {
+            const name = currentBill.customer || 'Walk-in Customer';
+            const phone = currentBill.customerPhone;
+            custEl.innerText = phone ? `${name} (${phone})` : name;
+        }
+
+        const cashierEl = document.getElementById('invoice-cashier');
+        if (cashierEl) {
+            cashierEl.innerText = `Cashier: ${currentBill.user || 'Admin User'}`;
+        }
+
         const due = calcTotal - totalPaid;
         document.getElementById('invoice-due').innerText = due > 0 ? due.toFixed(2) : '0.00';
         
         const change = totalPaid - calcTotal > 0 ? totalPaid - calcTotal : 0;
         document.getElementById('invoice-change').innerText = change.toFixed(2);
+
+        // Auto print trigger
+        if (params.get('autoprint') === 'true') {
+            setTimeout(() => {
+                window.print();
+            }, 500);
+        }
     }
 });

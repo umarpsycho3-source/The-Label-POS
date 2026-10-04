@@ -807,44 +807,13 @@ window.confirmPayment = () => {
     // Reset chequeDetails
     window.chequeDetails = null;
     
-    // Generate Print Receipt
-    const printDiv = document.createElement('div');
-    printDiv.id = 'print-section';
-    printDiv.innerHTML = `
-        <style>
-            @media print {
-                body * { visibility: hidden !important; }
-                #print-section, #print-section * { visibility: visible !important; }
-                #print-section {
-                    position: absolute;
-                    left: 0;
-                    top: 0;
-                    width: 100%;
-                    color: black;
-                    background: white;
-                }
-            }
-        </style>
-        <div style="text-align:center; font-family: monospace; font-size: 14px; margin-bottom: 20px;">
-            <h2>OSS POS System</h2>
-            <p>Invoice: ${billId}</p>
-            <hr>
-            ${billItems.map(item => `<div style="display:flex; justify-content:space-between;"><span>${item.name} x${item.qty}</span><span>${(item.price * item.qty).toFixed(2)}</span></div>`).join('')}
-            <hr>
-            <div style="display:flex; justify-content:space-between; font-weight:bold;"><span>Total</span><span>${totalAmount.toFixed(2)}</span></div>
-            <div style="display:flex; justify-content:space-between;"><span>Total Paid</span><span>${totalPaid.toFixed(2)}</span></div>
-            <div style="display:flex; justify-content:space-between;"><span>Balance/Due</span><span>${Math.abs(balance).toFixed(2)}</span></div>
-            <hr>
-        </div>
-    `;
-    document.body.appendChild(printDiv);
-    window.print();
-    printDiv.remove();
+    // Auto open print receipt window
+    window.open(`/view-sale.html?id=${billId}&type=thermal&autoprint=true`, '_blank');
     
     // Show Success Modal with premium design
     const displayBalance = Math.abs(balance);
     const isCredit = balance < -0.01;
-    const balanceLabel = isCredit ? 'Ã°Å¸â€™Â³ BALANCE DUE' : 'Ã°Å¸â€™Âµ CHANGE';
+    const balanceLabel = isCredit ? '💳 BALANCE DUE' : '💵 CHANGE';
     const balanceGrad = isCredit
         ? 'linear-gradient(135deg, #ef4444, #dc2626)'
         : 'linear-gradient(135deg, #10b981, #059669)';
@@ -881,7 +850,7 @@ window.confirmPayment = () => {
             #success-modal-container .s-card {
                 background: #fff;
                 border-radius: 24px;
-                width: 360px;
+                width: 380px;
                 max-width: 95vw;
                 overflow: hidden;
                 box-shadow: 0 40px 80px -12px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.1);
@@ -953,7 +922,7 @@ window.confirmPayment = () => {
                 text-align: center;
                 background: ${balanceGrad};
                 color: white;
-                margin-bottom: 1.5rem;
+                margin-bottom: 1.25rem;
                 animation: fade-up 0.4s 0.45s ease both;
                 box-shadow: ${isCredit ? '0 8px 24px rgba(239,68,68,0.3)' : '0 8px 24px rgba(16,185,129,0.3)'};
             }
@@ -968,12 +937,12 @@ window.confirmPayment = () => {
             }
             #success-modal-container .s-done-btn {
                 width: 100%;
-                padding: 1rem;
+                padding: 0.9rem;
                 border: none;
                 border-radius: 12px;
                 background: linear-gradient(135deg, #10b981, #059669);
                 color: white;
-                font-size: 1.1rem;
+                font-size: 1rem;
                 font-weight: 800;
                 cursor: pointer;
                 letter-spacing: 0.5px;
@@ -985,16 +954,13 @@ window.confirmPayment = () => {
                 transform: translateY(-2px);
                 box-shadow: 0 10px 28px rgba(16,185,129,0.5);
             }
-            #success-modal-container .s-done-btn:active {
-                transform: translateY(0);
-            }
         </style>
         <div class="s-overlay" onclick="event.stopPropagation()">
             <div class="s-card">
                 <div class="s-header">
                     <div class="s-check-ring"><i class="fa-solid fa-check"></i></div>
-                    <div class="s-bill-id">${billId}</div>
-                    <div class="s-badge">Ã¢Å“â€œ PAYMENT SUCCESSFUL</div>
+                    <div class="s-bill-id">#${billId}</div>
+                    <div class="s-badge">✓ PAYMENT SUCCESSFUL</div>
                 </div>
                 <div class="s-body">
                     <div class="s-amounts">
@@ -1011,6 +977,16 @@ window.confirmPayment = () => {
                         <div class="s-balance-label">${balanceLabel}</div>
                         <div class="s-balance-val">${displayBalance.toFixed(2)}</div>
                     </div>
+
+                    <div style="display:flex; gap:0.5rem; margin-bottom:0.8rem;">
+                        <button onclick="window.open('/view-sale.html?id=${billId}&type=thermal&autoprint=true', '_blank')" style="flex:1; background:#f5f3ff; color:#7c3aed; border:1px solid #ddd6fe; padding:0.7rem; border-radius:10px; font-weight:800; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.4rem;">
+                            <i class="fa-solid fa-receipt"></i> Print Receipt
+                        </button>
+                        <button onclick="window.open('/view-sale.html?id=${billId}&autoprint=true', '_blank')" style="flex:1; background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; padding:0.7rem; border-radius:10px; font-weight:800; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.4rem;">
+                            <i class="fa-solid fa-file-invoice"></i> Print Invoice
+                        </button>
+                    </div>
+
                     <button class="s-done-btn" onclick="window.closeSuccessModal()">
                         <i class="fa-solid fa-circle-check"></i> &nbsp; Done
                     </button>

@@ -369,27 +369,52 @@ window.generateBarcode = () => {
     document.getElementById('p-barcode').value = newBarcode;
 };
 
-window.openBarcodeModal = () => {
+window.renderBarcodeSelect = (filterQuery = '') => {
     const db = getProductsDB();
     const select = document.getElementById('bc-product-select');
+    if (!select) return 0;
     select.innerHTML = '';
     
-    let hasProducts = false;
+    const query = filterQuery.toLowerCase().trim();
+    let count = 0;
     for (const [barcode, p] of Object.entries(db)) {
-        hasProducts = true;
-        const opt = document.createElement('option');
-        opt.value = barcode;
-        opt.textContent = `${p.name} - Rs. ${parseFloat(p.price || 0).toFixed(2)}`;
-        select.appendChild(opt);
+        const text = `${p.name} - Rs. ${parseFloat(p.price || 0).toFixed(2)}`;
+        const match = !query || p.name.toLowerCase().includes(query) || barcode.toLowerCase().includes(query);
+        if (match) {
+            count++;
+            const opt = document.createElement('option');
+            opt.value = barcode;
+            opt.textContent = text;
+            select.appendChild(opt);
+        }
     }
+    if (select.options.length > 0) {
+        select.selectedIndex = 0;
+    }
+    return count;
+};
+
+window.openBarcodeModal = () => {
+    const searchInput = document.getElementById('bc-search-input');
+    if (searchInput) searchInput.value = '';
     
-    if (!hasProducts) {
+    const count = window.renderBarcodeSelect('');
+    if (count === 0) {
         alert("No products available to print barcodes.");
         return;
     }
     
     document.getElementById('barcode-modal').style.display = 'flex';
 };
+
+document.addEventListener('DOMContentLoaded', () => {
+    const bcSearch = document.getElementById('bc-search-input');
+    if (bcSearch) {
+        bcSearch.addEventListener('input', (e) => {
+            window.renderBarcodeSelect(e.target.value);
+        });
+    }
+});
 
 window.printBarcodes = () => {
     const barcode = document.getElementById('bc-product-select').value;
