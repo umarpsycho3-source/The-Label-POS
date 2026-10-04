@@ -3,12 +3,12 @@ import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBuQ9NrQKgYSfbFOqXFwI5XGmXOA5M9AxI",
-  authDomain: "the-label-pos.firebaseapp.com",
-  projectId: "the-label-pos",
-  storageBucket: "the-label-pos.firebasestorage.app",
-  messagingSenderId: "1026686993909",
-  appId: "1:1026686993909:web:afb76ef4d7cb44bec98cbc"
+  apiKey: "AIzaSyDbS0szCRD7b0LN33KHBgElA8t9UPSMGVg",
+  authDomain: "thelabelposdb.firebaseapp.com",
+  projectId: "thelabelposdb",
+  storageBucket: "thelabelposdb.firebasestorage.app",
+  messagingSenderId: "940127204415",
+  appId: "1:940127204415:web:45be4b9545b9ac6f5748a"
 };
 
 // Initialize Firebase
