@@ -17,8 +17,36 @@ window.addEventListener('cloudDataSynced', () => {
     loadCustomers(searchInput ? searchInput.value : '');
 });
 
+function getNextCustomerPin(db) {
+    const existingPins = Object.values(db).map(c => parseInt(c.pin)).filter(p => !isNaN(p));
+    let pin = 1001;
+    while (existingPins.includes(pin)) {
+        pin++;
+    }
+    return String(pin);
+}
+
 function getCustomersDB() {
-    return JSON.parse(localStorage.getItem('pos_customers_db')) || {};
+    const db = JSON.parse(localStorage.getItem('pos_customers_db')) || {};
+    let modified = false;
+    let pinCounter = 1001;
+    const existingPins = Object.values(db).map(c => parseInt(c.pin)).filter(p => !isNaN(p));
+    
+    Object.keys(db).forEach(k => {
+        if (!db[k].pin || db[k].pin === '-' || String(db[k].pin).trim() === '') {
+            while (existingPins.includes(pinCounter)) {
+                pinCounter++;
+            }
+            db[k].pin = String(pinCounter);
+            existingPins.push(pinCounter);
+            modified = true;
+        }
+    });
+    
+    if (modified) {
+        localStorage.setItem('pos_customers_db', JSON.stringify(db));
+    }
+    return db;
 }
 
 function saveCustomersDB(db) {
@@ -78,6 +106,8 @@ window.openCustomerModal = (mobile = null) => {
     const c = mobile && db[mobile] ? db[mobile] : null;
     const isEdit = !!c;
 
+    const defaultPin = c ? (c.pin || getNextCustomerPin(db)) : getNextCustomerPin(db);
+
     const html = `
         <div class="modal-overlay active" id="add-cust-modal" onclick="this.remove()">
             <div class="modal-content" style="width: 800px;" onclick="event.stopPropagation()">
@@ -106,7 +136,7 @@ window.openCustomerModal = (mobile = null) => {
                             </div>
                             <div class="form-group">
                                 <label>Customer PIN <span style="color:red">*</span></label>
-                                <input type="text" id="m-cust-pin" value="${c ? (c.pin || '1000') : '1000'}">
+                                <input type="text" id="m-cust-pin" value="${defaultPin}">
                             </div>
                             <div class="form-group">
                                 <label>Discount Rate (%)</label>
@@ -157,6 +187,7 @@ window.saveCustomerModal = (oldMobile) => {
     }
 
     const db = getCustomersDB();
+    const finalPin = pin || getNextCustomerPin(db);
     
     // If it's a new customer or mobile changed (unlikely due to readonly, but safe check)
     if (!oldMobile || oldMobile !== mobile) {
@@ -170,7 +201,7 @@ window.saveCustomerModal = (oldMobile) => {
         name: name,
         phone: mobile,
         nic: nic,
-        pin: pin,
+        pin: finalPin,
         discountRate: disc,
         creditLimit: credit,
         type: type,

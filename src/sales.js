@@ -45,6 +45,33 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
+    // ── Helper for robust YYYY-MM-DD date parsing ──────────────────────────
+    function formatToYYYYMMDD(str) {
+        if (!str) return '';
+        const cleanStr = String(str).trim();
+        const isoMatch = cleanStr.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+        if (isoMatch) {
+            return `${isoMatch[1]}-${isoMatch[2].padStart(2, '0')}-${isoMatch[3].padStart(2, '0')}`;
+        }
+        const slashed = cleanStr.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
+        if (slashed) {
+            let p1 = parseInt(slashed[1], 10);
+            let p2 = parseInt(slashed[2], 10);
+            let y = slashed[3];
+            let m = p1 > 12 ? p2 : p1;
+            let d = p1 > 12 ? p1 : p2;
+            return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        }
+        const d = new Date(cleanStr);
+        if (!isNaN(d.getTime())) {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+        return cleanStr.slice(0, 10);
+    }
+
     // ── Helper for local YYYY-MM-DD date ──────────────────────────────────
     function getLocalDateStr(d = new Date()) {
         const year = d.getFullYear();
@@ -53,12 +80,23 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${year}-${month}-${day}`;
     }
 
-    // ── Set today's date as defaults ───────────────────────────────────────
+    // ── Set default date filters ──────────────────────────────────────────
     const todayStr = getLocalDateStr();
     const filterFromDate = document.getElementById('filter-from-date');
     const filterToDate   = document.getElementById('filter-to-date');
-    if (filterFromDate) filterFromDate.value = todayStr;
-    if (filterToDate)   filterToDate.value   = todayStr;
+    
+    const initialSales = JSON.parse(localStorage.getItem('pos_sales_data')) || [];
+    const hasToday = initialSales.some(s => formatToYYYYMMDD(s.datetime) === todayStr);
+
+    if (filterFromDate && filterToDate) {
+        if (hasToday) {
+            filterFromDate.value = todayStr;
+            filterToDate.value   = todayStr;
+        } else {
+            filterFromDate.value = '';
+            filterToDate.value   = '';
+        }
+    }
 
     // ── Helper: format display value ───────────────────────────────────────
     const fmtNum = (n) => n === 0 ? '—' : n.toFixed(2);
@@ -190,14 +228,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterCashier  = document.getElementById('filter-cashier');
 
     function applyFilter() {
-        let filtered = allData;
+        const currentSalesData = JSON.parse(localStorage.getItem('pos_sales_data')) || [];
+        let filtered = currentSalesData;
 
-        // 1. Date range filter — the MAIN fix
+        // 1. Date range filter
         const from = filterFromDate?.value;
         const to   = filterToDate?.value;
         if (from || to) {
             filtered = filtered.filter(item => {
-                const itemDate = (item.datetime || '').slice(0, 10);
+                const itemDate = formatToYYYYMMDD(item.datetime || '');
                 if (!itemDate) return false;
                 if (from && itemDate < from) return false;
                 if (to   && itemDate > to)   return false;

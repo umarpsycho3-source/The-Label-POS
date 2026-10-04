@@ -459,13 +459,34 @@ document.addEventListener('click', (e) => {
 });
 
 
+function getNextCustomerPin(db) {
+    const existingPins = Object.values(db).map(c => parseInt(c.pin)).filter(p => !isNaN(p));
+    let pin = 1001;
+    while (existingPins.includes(pin)) {
+        pin++;
+    }
+    return String(pin);
+}
+
 window.saveCustomer = () => {
     const name = document.getElementById('new-cust-name').value.trim();
     const mobile = document.getElementById('new-cust-mobile').value.trim();
+    const pinEl = document.getElementById('new-cust-pin');
+    
     if (name && mobile) {
         // Save to localStorage
         const db = JSON.parse(localStorage.getItem('pos_customers_db')) || {};
-        db[mobile] = { name: name, creditLimit: 0, dueAmount: 0, phone: mobile };
+        const pin = (pinEl && pinEl.value.trim()) ? pinEl.value.trim() : getNextCustomerPin(db);
+        
+        db[mobile] = { 
+            name: name, 
+            phone: mobile, 
+            pin: pin, 
+            creditLimit: 0, 
+            dueAmount: 0,
+            type: 'MRP',
+            regDate: new Date().toISOString().split('T')[0]
+        };
         localStorage.setItem('pos_customers_db', JSON.stringify(db));
         window.customersDB = db;
         
@@ -522,6 +543,9 @@ window.calculatePayment = () => {
 
 // Customer Modal
 window.openCustomerModal = () => {
+    const db = JSON.parse(localStorage.getItem('pos_customers_db')) || {};
+    const autoPin = getNextCustomerPin(db);
+    
     const custHtml = `
         <div class="modal-overlay active" id="sub-modal-overlay" onclick="this.parentElement.remove()">
             <div class="modal-content generic-modal" onclick="event.stopPropagation()">
@@ -546,11 +570,11 @@ window.openCustomerModal = () => {
                 <div class="form-row">
                     <div class="form-group">
                         <label>NIC NUMBER</label>
-                        <input type="text" placeholder="National ID">
+                        <input type="text" id="new-cust-nic" placeholder="National ID">
                     </div>
                     <div class="form-group">
                         <label>PIN *</label>
-                        <input type="text" value="1113" style="border-color: #3b82f6; color: #3b82f6; font-weight: 700;">
+                        <input type="text" id="new-cust-pin" value="${autoPin}" style="border-color: #3b82f6; color: #3b82f6; font-weight: 700;">
                     </div>
                 </div>
                 <div class="form-group">
