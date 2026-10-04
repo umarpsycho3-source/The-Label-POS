@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -15,7 +15,8 @@
   <body>
     
     <div class="invoice-actions">
-      <button class="btn-action print" onclick="window.print()"><i class="fa-solid fa-print"></i> Print Invoice</button>
+      <button class="btn-action" id="btn-toggle-format" onclick="window.toggleFormat()"><i class="fa-solid fa-receipt"></i> Switch to Thermal 80mm</button>
+      <button class="btn-action print" onclick="window.print()"><i class="fa-solid fa-print"></i> Print</button>
       <a href="/sales.html" class="btn-action"><i class="fa-solid fa-xmark"></i> Close</a>
     </div>
 

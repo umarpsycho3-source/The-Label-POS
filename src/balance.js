@@ -85,7 +85,7 @@ window.renderBalances = function() {
             overdueBadge = '<span style="background:#fef3c7;color:#d97706;padding:3px 8px;border-radius:12px;font-size:0.7rem;font-weight:700;margin-left:0.5rem;"><i class="fa-solid fa-triangle-exclamation"></i> Due Soon</span>';
         }
         
-        let prodsDisplay = bal.products.slice(0, 2).map(p => `<span style="color:#3b82f6;">#${p}</span>`).join(', ');
+        let prodsDisplay = bal.products.slice(0, 2).map(p => `<span style="color:#3b82f6;">${String(p).replace(/^#/, '')}</span>`).join(', ');
         if (bal.products.length > 2) prodsDisplay += ` +${bal.products.length - 2} more`;
         if (!prodsDisplay) prodsDisplay = '-';
 

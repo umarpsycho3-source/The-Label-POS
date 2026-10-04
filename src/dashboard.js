@@ -281,7 +281,7 @@ function renderCreditDues(allSales) {
     }
 
     tbody.innerHTML = duesList.map(c => {
-        const prodDisplay = c.products.slice(0, 2).join(', ') + (c.products.length > 2 ? ` (+${c.products.length - 2})` : '');
+        const prodDisplay = c.products.slice(0, 2).map(p => String(p).replace(/^#/, '')).join(', ') + (c.products.length > 2 ? ` (+${c.products.length - 2})` : '');
         const waLink = c.phone && c.phone !== '-' ? `https://wa.me/${c.phone.replace(/\D/g, '')}?text=${encodeURIComponent('Reminder: Outstanding balance of ' + fmt(c.balance) + ' at THE LABEL POS.')}` : '';
         return `
             <tr>

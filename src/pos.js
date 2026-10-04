@@ -714,6 +714,17 @@ window.confirmPayment = () => {
     const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
     const datetime = `${dateStr} ${timeStr}`;
     
+    // Cheque Details Capture
+    const chequeNum = (cheque > 0 && window.chequeDetails && (window.chequeDetails.number || window.chequeDetails.num))
+        ? (window.chequeDetails.number || window.chequeDetails.num)
+        : (cheque > 0 ? 'CHQ-' + billId : '');
+    const chequeBankName = (cheque > 0 && window.chequeDetails && window.chequeDetails.bank)
+        ? window.chequeDetails.bank
+        : (cheque > 0 ? 'Bank' : '');
+    const chequeDueDate = (cheque > 0 && window.chequeDetails && window.chequeDetails.date)
+        ? window.chequeDetails.date
+        : dateStr;
+
     // Build new bill object
     const newBill = {
         id: billId,
@@ -721,6 +732,10 @@ window.confirmPayment = () => {
         cash: cash > 0 ? cash.toFixed(2) : '0',
         card: card > 0 ? card.toFixed(2) : '-',
         cheque: cheque > 0 ? cheque.toFixed(2) : '-',
+        chequeNo: chequeNum,
+        chequeBank: chequeBankName,
+        chequeDate: chequeDueDate,
+        chequeStatus: 'Pending',
         user: 'Admin User',
         customer: customerName,
         customerPhone: customerPhone,
@@ -728,7 +743,7 @@ window.confirmPayment = () => {
         dueDate: balance < -0.01 && creditDueDate ? creditDueDate : null,
         items: billItems.map(item => ({
             name: item.name,
-            barcode: item.barcode || '0000000000000',
+            barcode: item.code || item.barcode || '0000000000000',
             cost: item.price,
             original: item.price,
             sale: item.price - (item.disAmount || 0),
@@ -736,9 +751,37 @@ window.confirmPayment = () => {
         }))
     };
     
-    // Save to localStorage
+    // 1. Deduct Stock Quantity from pos_products_db
+    let productsDb = JSON.parse(localStorage.getItem('pos_products_db')) || {};
+    let productsUpdated = false;
+    billItems.forEach(item => {
+        const code = item.code || item.barcode;
+        if (code && productsDb[code]) {
+            const currentQty = parseFloat(productsDb[code].qty) || 0;
+            const soldQty = parseFloat(item.qty) || 0;
+            productsDb[code].qty = Math.max(0, currentQty - soldQty);
+            productsUpdated = true;
+        } else {
+            Object.keys(productsDb).forEach(k => {
+                if (productsDb[k].name === item.name) {
+                    const currentQty = parseFloat(productsDb[k].qty) || 0;
+                    const soldQty = parseFloat(item.qty) || 0;
+                    productsDb[k].qty = Math.max(0, currentQty - soldQty);
+                    productsUpdated = true;
+                }
+            });
+        }
+    });
+    if (productsUpdated) {
+        localStorage.setItem('pos_products_db', JSON.stringify(productsDb));
+    }
+
+    // Save sales data to localStorage & Cloud
     salesData.unshift(newBill); // Add to top (most recent first)
     localStorage.setItem('pos_sales_data', JSON.stringify(salesData));
+    
+    // Reset chequeDetails
+    window.chequeDetails = null;
     
     // Generate Print Receipt
     const printDiv = document.createElement('div');

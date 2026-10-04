@@ -226,6 +226,8 @@ window.editProduct = (barcode) => {
     document.getElementById('p-cost').value = p.cost || '';
     document.getElementById('p-mrp').value = p.price || '';
     document.getElementById('p-stock').value = p.qty || '0';
+    const minStockInput = document.getElementById('p-min-stock');
+    if (minStockInput) minStockInput.value = p.minStock || p.alertQty || 5;
     
     window.resetImageUpload();
     if (p.image && p.image !== window.location.href) {
@@ -250,6 +252,7 @@ window.saveProduct = (oldBarcode) => {
     const cost = parseFloat(document.getElementById('p-cost').value) || 0;
     const price = parseFloat(document.getElementById('p-mrp').value) || 0;
     const qty = parseFloat(document.getElementById('p-stock').value) || 0;
+    const minStock = parseFloat(document.getElementById('p-min-stock')?.value) || 5;
     const category = document.getElementById('p-category').value;
     const supplier = document.getElementById('p-supplier').value;
     
@@ -269,12 +272,17 @@ window.saveProduct = (oldBarcode) => {
         return;
     }
 
+    const d = new Date();
+    const addTimeStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+
     const p = {
         barcode: barcode,
         name: name,
         cost: cost,
         price: price,
         qty: qty,
+        minStock: minStock,
+        alertQty: minStock,
         category: category,
         supplier: supplier,
         discount: price,
@@ -282,7 +290,7 @@ window.saveProduct = (oldBarcode) => {
         special: price,
         status: 'Off',
         image: image,
-        addTime: new Date().toISOString().replace('T', ' ').substring(0, 16)
+        addTime: addTimeStr
     };
 
     if (oldBarcode && oldBarcode !== barcode) {

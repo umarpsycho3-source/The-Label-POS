@@ -191,6 +191,63 @@ body {
   margin: 0.2rem 0;
 }
 
+/* Thermal Receipt Mode Styles */
+body.thermal-mode {
+  background: #e2e8f0;
+}
+
+body.thermal-mode .invoice-paper {
+  max-width: 380px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  font-family: 'Courier New', Courier, monospace;
+}
+
+body.thermal-mode .invoice-header {
+  flex-direction: column;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+body.thermal-mode .company-info {
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+body.thermal-mode .invoice-details {
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-top: 1px dashed #94a3b8;
+  border-bottom: 1px dashed #94a3b8;
+  padding: 0.75rem 0;
+}
+
+body.thermal-mode .detail-block.right {
+  text-align: left;
+}
+
+body.thermal-mode .invoice-table {
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+
+body.thermal-mode .invoice-table th,
+body.thermal-mode .invoice-table td {
+  padding: 0.4rem 0;
+}
+
+body.thermal-mode .summary-table {
+  width: 100%;
+  font-size: 0.85rem;
+}
+
+body.thermal-mode .invoice-footer {
+  margin-top: 2rem;
+  border-top: 1px dashed #94a3b8;
+  padding-top: 1rem;
+}
+
 /* Print Styles */
 @media print {
   body {
@@ -199,12 +256,17 @@ body {
     margin: 0;
   }
   .invoice-actions {
-    display: none;
+    display: none !important;
   }
   .invoice-paper {
-    box-shadow: none;
-    padding: 0;
-    margin: 0;
-    max-width: 100%;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+  body.thermal-mode .invoice-paper {
+    width: 80mm !important;
+    max-width: 80mm !important;
+    padding: 5mm !important;
   }
 }

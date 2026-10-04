@@ -4,6 +4,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search);
     const billId = params.get('id');
 
+    const type = params.get('type') || params.get('format');
+    if (type === 'thermal' || type === 'receipt') {
+        document.body.classList.add('thermal-mode');
+        const btn = document.getElementById('btn-toggle-format');
+        if (btn) btn.innerHTML = `<i class="fa-solid fa-file-invoice"></i> Switch to A4 Invoice`;
+    }
+
+    window.toggleFormat = function() {
+        document.body.classList.toggle('thermal-mode');
+        const isThermal = document.body.classList.contains('thermal-mode');
+        const btn = document.getElementById('btn-toggle-format');
+        if (btn) {
+            btn.innerHTML = isThermal 
+                ? `<i class="fa-solid fa-file-invoice"></i> Switch to A4 Invoice` 
+                : `<i class="fa-solid fa-receipt"></i> Switch to Thermal 80mm`;
+        }
+    };
+
     if (!billId) return;
 
     // Set the ID in the header

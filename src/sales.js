@@ -95,10 +95,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td style="color:#64748b;font-weight:600;font-size:0.85rem;">${index + 1}</td>
                     <td>
                         <div style="display:flex;gap:0.3rem;flex-wrap:wrap;">
-                            <button class="btn-icon edit btn-action-edit"   data-id="${raw.id}" title="Edit"   style="background:#dbeafe;color:#1d4ed8;border:none;width:30px;height:30px;border-radius:7px;cursor:pointer;"><i class="fa-solid fa-pen fa-xs"></i></button>
-                            <button class="btn-icon view btn-action-view"   data-id="${raw.id}" title="View"   style="background:#f0fdf4;color:#16a34a;border:none;width:30px;height:30px;border-radius:7px;cursor:pointer;"><i class="fa-solid fa-eye fa-xs"></i></button>
-                            <button class="btn-icon print btn-action-print" data-id="${raw.id}" title="Print"  style="background:#f5f3ff;color:#7c3aed;border:none;width:30px;height:30px;border-radius:7px;cursor:pointer;"><i class="fa-solid fa-print fa-xs"></i></button>
-                            <button class="btn-icon delete btn-action-delete" data-id="${raw.id}" title="Delete" style="background:#fee2e2;color:#dc2626;border:none;width:30px;height:30px;border-radius:7px;cursor:pointer;"><i class="fa-solid fa-trash-can fa-xs"></i></button>
+                            <button class="btn-icon edit btn-action-edit"   data-id="${raw.id}" title="Edit Invoice"   style="background:#dbeafe;color:#1d4ed8;border:none;width:30px;height:30px;border-radius:7px;cursor:pointer;"><i class="fa-solid fa-pen fa-xs"></i></button>
+                            <button class="btn-icon view btn-action-view"   data-id="${raw.id}" title="View A4 Invoice" style="background:#f0fdf4;color:#16a34a;border:none;width:30px;height:30px;border-radius:7px;cursor:pointer;"><i class="fa-solid fa-file-invoice fa-xs"></i></button>
+                            <button class="btn-icon print btn-action-receipt" data-id="${raw.id}" title="Print Thermal Receipt" style="background:#f5f3ff;color:#7c3aed;border:none;width:30px;height:30px;border-radius:7px;cursor:pointer;"><i class="fa-solid fa-receipt fa-xs"></i></button>
+                            <button class="btn-icon delete btn-action-delete" data-id="${raw.id}" title="Delete Invoice" style="background:#fee2e2;color:#dc2626;border:none;width:30px;height:30px;border-radius:7px;cursor:pointer;"><i class="fa-solid fa-trash-can fa-xs"></i></button>
                         </div>
                     </td>
                     <td>${statusBadge}</td>
@@ -167,9 +167,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.href = '/view-sale.html?id=' + e.currentTarget.dataset.id;
             });
         });
-        document.querySelectorAll('.btn-action-print').forEach(btn => {
+        document.querySelectorAll('.btn-action-receipt').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                window.open('/view-sale.html?id=' + e.currentTarget.dataset.id, '_blank');
+                window.open('/view-sale.html?id=' + e.currentTarget.dataset.id + '&type=thermal', '_blank');
             });
         });
         document.querySelectorAll('.btn-action-delete').forEach(btn => {

@@ -67,7 +67,7 @@ window.renderCheques = function() {
                     <button style="background:#dcfce7; color:#22c55e; border:none; padding:0.4rem 0.6rem; border-radius:6px; cursor:pointer;" onclick="window.open('https://wa.me/${custPhone}?text=Hello ${custName}, this is regarding your cheque (${chqNo}) for Rs. ${chqAmount.toFixed(2)}.', '_blank')" title="WhatsApp Customer" ${!custPhone ? 'disabled style="opacity:0.4;"' : ''}>
                         <i class="fa-brands fa-whatsapp"></i>
                     </button>
-                    <button style="background:#e0f2fe; color:#0ea5e9; border:none; padding:0.4rem 0.6rem; border-radius:6px; cursor:pointer;" onclick="window.location.href='/edit-bill.html?id=${s.id}'" title="Edit Bill">
+                    <button style="background:#e0f2fe; color:#0ea5e9; border:none; padding:0.4rem 0.6rem; border-radius:6px; cursor:pointer;" onclick="window.editChequeDetails('${s.id}')" title="Edit Cheque Details">
                         <i class="fa-solid fa-pen"></i>
                     </button>
                     <button style="background:#f1f5f9; color:#ef4444; border:none; padding:0.4rem 0.6rem; border-radius:6px; cursor:pointer;" onclick="window.deleteCheque('${s.id}')" title="Delete Cheque Record">
@@ -88,16 +88,82 @@ window.renderCheques = function() {
     document.getElementById('stat-bounced').textContent = bounced.toFixed(2);
 };
 
+window.editChequeDetails = (saleId) => {
+    const salesDb = JSON.parse(localStorage.getItem('pos_sales_data')) || [];
+    const s = salesDb.find(item => String(item.id) === String(saleId));
+    if (!s) return;
+
+    const modalHtml = `
+        <div class="modal-overlay active" id="edit-cheque-modal" style="background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); display:flex; align-items:center; justify-content:center; z-index:9999; position:fixed; inset:0;">
+            <div style="background:#fff; width:90%; max-width:500px; border-radius:12px; padding:1.5rem; box-shadow:0 10px 25px rgba(0,0,0,0.2); position:relative;">
+                <button onclick="document.getElementById('edit-cheque-modal').remove()" style="position:absolute; top:1rem; right:1rem; background:#cbd5e1; border:none; width:28px; height:28px; border-radius:50%; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+                <h3 style="font-size:1.1rem; font-weight:800; margin-bottom:1rem; color:#1e293b;"><i class="fa-solid fa-money-check-pen" style="color:#3b82f6;"></i> Edit Cheque #${s.id}</h3>
+                
+                <div style="display:flex; flex-direction:column; gap:1rem;">
+                    <div>
+                        <label style="font-size:0.85rem; font-weight:700; color:#475569; display:block; margin-bottom:0.3rem;">Cheque Number</label>
+                        <input type="text" id="edit-chq-no" value="${s.chequeNo || ''}" placeholder="e.g. 123456" style="width:100%; padding:0.6rem; border:1px solid #cbd5e1; border-radius:6px; font-weight:700;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.85rem; font-weight:700; color:#475569; display:block; margin-bottom:0.3rem;">Bank Name</label>
+                        <input type="text" id="edit-chq-bank" value="${s.chequeBank || ''}" placeholder="e.g. Bank of Ceylon" style="width:100%; padding:0.6rem; border:1px solid #cbd5e1; border-radius:6px;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.85rem; font-weight:700; color:#475569; display:block; margin-bottom:0.3rem;">Due Date</label>
+                        <input type="date" id="edit-chq-date" value="${s.chequeDate || (s.datetime ? s.datetime.slice(0,10) : '')}" style="width:100%; padding:0.6rem; border:1px solid #cbd5e1; border-radius:6px;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.85rem; font-weight:700; color:#475569; display:block; margin-bottom:0.3rem;">Status</label>
+                        <select id="edit-chq-status" style="width:100%; padding:0.6rem; border:1px solid #cbd5e1; border-radius:6px; background:#fff;">
+                            <option value="Pending" ${(s.chequeStatus || 'Pending') === 'Pending' ? 'selected' : ''}>Pending</option>
+                            <option value="Cleared" ${s.chequeStatus === 'Cleared' ? 'selected' : ''}>Cleared</option>
+                            <option value="Bounced" ${s.chequeStatus === 'Bounced' ? 'selected' : ''}>Bounced</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:0.8rem; margin-top:1.5rem;">
+                    <button onclick="document.getElementById('edit-cheque-modal').remove()" style="padding:0.6rem 1.2rem; background:#cbd5e1; border:none; border-radius:6px; cursor:pointer; font-weight:700;">Cancel</button>
+                    <button onclick="window.saveEditedCheque('${s.id}')" style="padding:0.6rem 1.2rem; background:#3b82f6; color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:700;"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const div = document.createElement('div');
+    div.id = 'edit-cheque-container';
+    div.innerHTML = modalHtml;
+    document.body.appendChild(div);
+};
+
+window.saveEditedCheque = (saleId) => {
+    const chqNo = document.getElementById('edit-chq-no')?.value.trim() || 'N/A';
+    const chqBank = document.getElementById('edit-chq-bank')?.value.trim() || 'Bank';
+    const chqDate = document.getElementById('edit-chq-date')?.value || '';
+    const chqStatus = document.getElementById('edit-chq-status')?.value || 'Pending';
+
+    const salesDb = JSON.parse(localStorage.getItem('pos_sales_data')) || [];
+    const idx = salesDb.findIndex(s => String(s.id) === String(saleId));
+    if (idx !== -1) {
+        salesDb[idx].chequeNo = chqNo;
+        salesDb[idx].chequeBank = chqBank;
+        salesDb[idx].chequeDate = chqDate;
+        salesDb[idx].chequeStatus = chqStatus;
+        localStorage.setItem('pos_sales_data', JSON.stringify(salesDb));
+    }
+
+    const modal = document.getElementById('edit-cheque-container');
+    if (modal) modal.remove();
+
+    window.renderCheques();
+};
+
 window.updateChequeStatus = (saleId, newStatus) => {
     if (confirm(`Mark this cheque as ${newStatus}?`)) {
         const salesDb = JSON.parse(localStorage.getItem('pos_sales_data')) || [];
         const idx = salesDb.findIndex(s => s.id === saleId);
         if (idx !== -1) {
             salesDb[idx].chequeStatus = newStatus;
-            
-            // If bounced, we could logically remove the cheque payment amount so it becomes outstanding balance again.
-            // But usually merchants just want to track it as bounced. Let's just track it for now.
-            
             localStorage.setItem('pos_sales_data', JSON.stringify(salesDb));
             window.renderCheques();
         }
