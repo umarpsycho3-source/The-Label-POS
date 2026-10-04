@@ -1,0 +1,171 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>POS System - Edit Bill</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/src/navbar.css">
+    <link rel="stylesheet" href="/src/dashboard.css">
+      <script type="module" src="/src/sync.js"></script>
+</head>
+  <body>
+    <div class="edit-layout">
+      <!-- Left Panel -->
+      <div class="left-panel">
+        <div class="panel-header">
+          <i class="fa-solid fa-file-invoice"></i> Bill Settings
+        </div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label>Customer</label>
+            <select class="form-control" id="customer-select">
+              <option>No Customer</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="phone-group">
+            <label>Customer Phone</label>
+            <div class="input-with-prefix">
+              <span class="prefix" style="color:#3b82f6;"><i class="fa-solid fa-phone"></i></span>
+              <input type="text" id="edit-customer-phone" placeholder="07XXXXXXXX" style="color:#1e293b;">
+            </div>
+            <div id="phone-save-hint" style="font-size:0.75rem; color:#10b981; margin-top:0.3rem; display:none;"><i class="fa-solid fa-circle-check"></i> Phone will be saved with this bill</div>
+          </div>
+
+          <div class="section-label">PAYMENT DETAILS</div>
+
+          <div class="form-group">
+            <label>Cash Payment</label>
+            <div class="input-with-prefix">
+              <span class="prefix">Rs.</span>
+              <input type="number" id="edit-cash" value="200.00">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Card Payment</label>
+            <div class="input-with-prefix">
+              <span class="prefix">Rs.</span>
+              <input type="number" id="edit-card" value="0.00">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Cheque Payment</label>
+            <div class="input-with-prefix">
+              <span class="prefix">Rs.</span>
+              <input type="number" id="edit-cheque" value="0.00">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Customer Paid</label>
+            <input type="number" class="form-control" id="edit-customer-paid" value="200.00">
+          </div>
+
+          <div class="form-group" style="background: #fef2f2; padding: 0.5rem; border-radius: 4px; border: 1px solid #fca5a5;">
+            <label style="color: #b91c1c;">Balance Due</label>
+            <div class="input-with-prefix">
+              <span class="prefix" style="color: #b91c1c; font-weight: 700;">Rs.</span>
+              <input type="text" id="edit-balance-due" value="0.00" readonly style="color: #b91c1c; font-weight: 700; background: transparent; border: none; padding-left: 0;">
+            </div>
+          </div>
+
+          <div class="form-group" id="due-date-group" style="display: none;">
+            <label>Credit Due Date</label>
+            <input type="date" class="form-control" id="edit-due-date">
+          </div>
+
+          <div class="form-group">
+            <label>Discount</label>
+            <input type="number" class="form-control" id="edit-discount" value="0.00">
+          </div>
+
+          <div class="form-group" style="margin-top: 1.5rem;">
+            <label>Sale Date & Time</label>
+            <input type="text" class="form-control" value="10/02/2026 11:06:55 PM">
+          </div>
+
+          <div class="form-group">
+            <label>Print Format</label>
+            <select class="form-control"><option>80mm Receipt</option></select>
+          </div>
+        </div>
+        <button class="btn-update" id="btn-update-bill"><i class="fa-solid fa-floppy-disk"></i> Update Bill Details</button>
+      </div>
+
+      <!-- Right Panel -->
+      <div class="right-panel">
+        <div class="right-header">
+          <h2 id="edit-bill-title"><i class="fa-solid fa-cart-shopping"></i> Bill Items (Invoice #2610022051)</h2>
+          <button class="btn-outline">Edit Mode</button>
+        </div>
+
+        <div class="add-item-row">
+          <div class="form-group" style="flex: 2;">
+            <label>Product Barcode/Name</label>
+            <input type="text" class="form-control" id="add-product-name" placeholder="Scan or Search">
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label>Cost</label>
+            <input type="number" class="form-control" id="add-product-cost" value="0.00">
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label>Original Price</label>
+            <input type="number" class="form-control" id="add-product-original" value="0.00">
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label>Sale Price</label>
+            <input type="number" class="form-control" id="add-product-sale" value="0.00">
+          </div>
+          <div class="form-group" style="flex: 0.5;">
+            <label>Qty</label>
+            <input type="number" class="form-control" id="add-product-qty" value="1">
+          </div>
+          <button class="btn-add" id="btn-add-item"><i class="fa-solid fa-plus"></i></button>
+        </div>
+
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th style="text-align: right;">Cost</th>
+              <th style="text-align: right;">Original</th>
+              <th style="text-align: right;">Sold At</th>
+              <th style="text-align: right;">Qty</th>
+              <th style="text-align: right;">Total</th>
+              <th style="text-align: center;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="edit-bill-tbody">
+            <!-- Items generated via JS -->
+          </tbody>
+        </table>
+
+        <div class="total-summary">
+          <div class="label">Net Total Amount:</div>
+          <div class="amount" id="net-total-amount">0.00</div>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+      if (id) {
+          document.getElementById('edit-bill-title').innerHTML = `<i class="fa-solid fa-cart-shopping"></i> Bill Items (Invoice #${id})`;
+      }
+    </script>
+    <script type="module" src="/src/edit-bill.js"></script>
+    <link rel="stylesheet" href="/src/edit-bill.css">
+  </body>
+</html>
+
+
+
+

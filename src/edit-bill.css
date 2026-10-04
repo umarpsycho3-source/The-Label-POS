@@ -1,0 +1,251 @@
+/* edit-bill.css */
+body {
+  background: #f1f5f9;
+  font-family: 'Outfit', sans-serif;
+  margin: 0;
+  padding: 0;
+  color: #334155;
+}
+
+.edit-layout {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.left-panel {
+  flex: 0 0 350px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-header {
+  padding: 1.2rem;
+  border-bottom: 1px solid #f1f5f9;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.panel-body {
+  padding: 1.2rem;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.form-group {
+  margin-bottom: 1.2rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+}
+
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #94a3b8;
+  text-transform: uppercase;
+  margin: 1.5rem 0 0.8rem 0;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 0.3rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: #334155;
+}
+
+.form-control:focus {
+  border-color: #3b82f6;
+  outline: none;
+}
+
+.input-with-prefix {
+  display: flex;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.input-with-prefix .prefix {
+  background: #f8fafc;
+  padding: 0.6rem 0.8rem;
+  border-right: 1px solid #cbd5e1;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.input-with-prefix input {
+  flex: 1;
+  border: none;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+  width: 100%;
+}
+
+.btn-update {
+  background: #22c55e;
+  color: white;
+  border: none;
+  padding: 1rem;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+  border-radius: 0 0 8px 8px;
+}
+
+.btn-update:hover {
+  background: #16a34a;
+}
+
+/* Right Panel */
+.right-panel {
+  flex: 1;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.right-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.right-header h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-outline {
+  background: white;
+  border: 1px solid #cbd5e1;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+}
+
+.add-item-row {
+  display: flex;
+  gap: 1rem;
+  padding: 1.2rem;
+  border-bottom: 1px solid #f1f5f9;
+  align-items: flex-end;
+}
+
+.add-item-row .form-group {
+  margin-bottom: 0;
+}
+
+.btn-add {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  width: 40px;
+  height: 36px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.items-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.items-table th {
+  background: #f8fafc;
+  padding: 0.8rem 1.2rem;
+  text-align: left;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #64748b;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.items-table td {
+  padding: 1rem 1.2rem;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+.items-table input {
+  width: 80px;
+  padding: 0.4rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  text-align: right;
+}
+
+.total-summary {
+  margin-top: auto;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  border-radius: 0 0 8px 8px;
+}
+
+.total-summary .label {
+  font-weight: 700;
+  color: #1e293b;
+  font-size: 1.1rem;
+}
+
+.total-summary .amount {
+  font-weight: 800;
+  color: #16a34a;
+  font-size: 1.4rem;
+}
+
+.delete-btn {
+  color: #ef4444;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 1rem;
+}

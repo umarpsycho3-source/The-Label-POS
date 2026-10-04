@@ -1,0 +1,188 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>POS System - Stock Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/src/navbar.css">
+    <link rel="stylesheet" href="/src/dashboard.css">
+    <link rel="stylesheet" href="/src/customers.css"> <!-- Reusing navbar/base styles -->
+    <link rel="stylesheet" href="/src/stock.css">
+      <script type="module" src="/src/sync.js"></script>
+</head>
+  <body>
+    <div id="app">
+      <!-- Navbar -->
+      <nav class="navbar">
+        <div class="nav-links">
+          <a href="/dashboard.html"><i class="fa-solid fa-gauge-high"></i><br>Dashboard</a>
+          <a href="/pos.html"><i class="fa-solid fa-cash-register"></i><br>POS</a>
+          <a href="/sales.html"><i class="fa-solid fa-cart-shopping"></i><br>Sales</a>
+          <a href="/products.html"><i class="fa-solid fa-tags"></i><br>Products</a>
+          <a href="/stock.html" class="active"><i class="fa-solid fa-box"></i><br>Stock</a>
+          <a href="/customers.html"><i class="fa-solid fa-users"></i><br>Customers</a>
+          <a href="/balance.html"><i class="fa-solid fa-hand-holding-dollar"></i><br>Balance</a>
+          <a href="#"><i class="fa-solid fa-money-check-dollar"></i><br>Cheque</a>
+          <a href="/reports.html"><i class="fa-solid fa-chart-line"></i><br>Reports</a>
+          <a href="/" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i><br>Logout</a>
+          <a href="/settings.html"><i class="fa-solid fa-gear"></i><br>Settings</a>
+          </div>
+      </nav>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <header class="page-header" style="margin-bottom: 1.5rem; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <h1 style="color:#2563eb;"><i class="fa-solid fa-cubes"></i> Stock Management</h1>
+            <p>Update specific stock items and view stock history.</p>
+          </div>
+          <div class="stock-action-buttons">
+            <button class="btn-stock-in active"><i class="fa-solid fa-circle-arrow-down"></i> Stock In</button>
+            <button class="btn-stock-out"><i class="fa-solid fa-circle-arrow-up"></i> Stock Out</button>
+          </div>
+        </header>
+
+        <div class="stock-grid">
+          <!-- Left Column: Update Stock -->
+          <div class="stock-left-col">
+            <div class="card">
+              <h2 class="card-title">Update Stock</h2>
+              
+              <div class="stock-search-box">
+                <i class="fa-solid fa-barcode"></i>
+                <input type="text" id="s-search" placeholder="Scan Barcode or Enter Product Code..." autocomplete="off">
+                <i class="fa-solid fa-caret-down"></i>
+                <div id="s-search-results" class="search-dropdown"></div>
+              </div>
+
+              <div class="product-details">
+                <div class="detail-row">
+                  <span class="detail-label">Barcode</span>
+                  <span class="detail-value" id="s-barcode">-</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Product ID</span>
+                  <span class="detail-value" id="s-product-id">-</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Name</span>
+                  <span class="detail-value" id="s-name">-</span>
+                </div>
+              </div>
+
+              <div class="stock-summary">
+                <div class="summary-box">
+                  <span class="summary-label">Total In</span>
+                  <span class="summary-value success" id="s-total-in">-</span>
+                </div>
+                <div class="summary-box">
+                  <span class="summary-label">Total Out</span>
+                  <span class="summary-value danger" id="s-total-out">-</span>
+                </div>
+                <div class="summary-box">
+                  <span class="summary-label">Available</span>
+                  <span class="summary-value primary" id="s-available">-</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Location</label>
+                <select id="s-location" class="form-control">
+                  <option>Main Store</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Batch / Price</label>
+                <select id="s-batch" class="form-control">
+                  <option value="">Select Product First</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Quantity</label>
+                <input type="number" id="s-qty" class="form-control" placeholder="0.00">
+              </div>
+
+              <button class="btn-dark" style="width:100%; margin-top:1rem;" onclick="window.updateStock()">Update</button>
+            </div>
+
+            <div class="card" style="margin-top: 1.5rem;">
+              <h2 class="card-title">Location Wise Stock</h2>
+              <table class="data-table" style="margin-top:0.5rem;">
+                <tbody id="location-stock-body">
+                  <tr>
+                    <td>Main Store</td>
+                    <td style="text-align:right; font-weight:700;" id="s-loc-qty">-</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Right Column: Recent Activity & Batches -->
+          <div class="stock-right-col">
+            <!-- Recent Activity -->
+            <div class="card" style="margin-bottom: 1.5rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <h2 class="card-title" style="margin:0;">Recent Activity (Last 50)</h2>
+                <div>
+                  <button class="btn-outline-small">View All</button>
+                  <button class="btn-outline-small">Tran. Badge</button>
+                </div>
+              </div>
+              <div class="table-responsive" style="max-height: 250px; overflow-y:auto;">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>TIME</th>
+                      <th>INFO</th>
+                      <th style="text-align:right;">QTY</th>
+                      <th style="text-align:center;">TYPE</th>
+                    </tr>
+                  </thead>
+                  <tbody id="activity-tbody">
+                    <!-- Loaded via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Batch Wise Availability -->
+            <div class="card">
+              <h2 class="card-title" style="margin-bottom:1rem;">Batch Wise Availability</h2>
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>BATCH NAME</th>
+                      <th>CREATED</th>
+                      <th style="text-align:right;">COST</th>
+                      <th style="text-align:right;">MRP</th>
+                      <th style="text-align:right;">AVAIL. QTY</th>
+                    </tr>
+                  </thead>
+                  <tbody id="batch-tbody">
+                    <!-- Loaded via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </main>
+    </div>
+    <script type="module" src="/src/stock.js"></script>
+  </body>
+</html>
+
+
+
+
+

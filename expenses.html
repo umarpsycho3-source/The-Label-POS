@@ -1,0 +1,162 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Expenses Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/src/navbar.css">
+    <link rel="stylesheet" href="/src/dashboard.css">
+    <link rel="stylesheet" href="/src/customers.css">
+    <style>
+      .modal-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:999; align-items:center; justify-content:center; backdrop-filter:blur(3px); }
+      .modal-backdrop.open { display:flex; }
+      .modal { background:#fff; width:100%; max-width:500px; border-radius:12px; overflow:hidden; animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+      @keyframes slideUp{ from{opacity:0; transform:translateY(40px) scale(0.95);} to{opacity:1; transform:translateY(0) scale(1);} }
+      .modal-header { padding:20px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; }
+      .modal-header h3 { margin:0; font-size:1.1rem; color:#1e293b; }
+      .modal-close { background:none; border:none; font-size:1.2rem; cursor:pointer; color:#64748b; }
+      .modal-body { padding:20px; }
+      .form-group { margin-bottom:15px; }
+      .form-group label { display:block; font-size:0.85rem; font-weight:600; margin-bottom:5px; color:#475569; }
+      .form-group input, .form-group select { width:100%; padding:10px 14px; border:2px solid #e2e8f0; border-radius:8px; font-family:'Outfit'; outline:none; transition:border 0.2s; }
+      .form-group input:focus, .form-group select:focus { border-color:#3b82f6; }
+      .modal-footer { padding:20px; border-top:1px solid #e2e8f0; display:flex; justify-content:flex-end; gap:10px; background:#f8fafc; }
+      .btn { padding:10px 20px; border:none; border-radius:8px; font-weight:600; cursor:pointer; transition:all 0.2s; font-family:'Outfit'; }
+      .btn-cancel { background:#f1f5f9; color:#475569; }
+      .btn-cancel:hover { background:#e2e8f0; }
+      .btn-save { background:#3b82f6; color:#fff; }
+      .btn-save:hover { background:#2563eb; }
+      
+      .action-icon {
+        cursor: pointer; padding: 6px; border-radius: 6px; margin: 0 3px; font-size: 0.9rem; transition: 0.2s;
+        border: none;
+      }
+      .action-icon.del { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+      .action-icon.del:hover { background: #ef4444; color: #fff; }
+    </style>
+      <script type="module" src="/src/sync.js"></script>
+</head>
+  <body>
+    <div id="app">
+      <!-- Navbar -->
+      <nav class="navbar">
+        <div class="nav-links">
+          <a href="/dashboard.html"><i class="fa-solid fa-gauge-high"></i><br>Dashboard</a>
+          <a href="/pos.html"><i class="fa-solid fa-cash-register"></i><br>POS</a>
+          <a href="/sales.html"><i class="fa-solid fa-cart-shopping"></i><br>Sales</a>
+          <a href="/products.html"><i class="fa-solid fa-tags"></i><br>Products</a>
+          <a href="/stock.html"><i class="fa-solid fa-box"></i><br>Stock</a>
+          <a href="/customers.html"><i class="fa-solid fa-users"></i><br>Customers</a>
+          <a href="/balance.html"><i class="fa-solid fa-hand-holding-dollar"></i><br>Balance</a>
+          <a href="/cheque.html"><i class="fa-solid fa-money-check-dollar"></i><br>Cheque</a>
+          <a href="/expenses.html" class="active"><i class="fa-solid fa-money-bill-transfer"></i><br>Expenses</a>
+          <a href="/reports.html"><i class="fa-solid fa-chart-line"></i><br>Reports</a>
+          <a href="/" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i><br>Logout</a>
+          <a href="/settings.html"><i class="fa-solid fa-gear"></i><br>Settings</a>
+          </div>
+      </nav>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <header class="page-header">
+          <div>
+            <h1><i class="fa-solid fa-money-bill-transfer" style="color:#ef4444;"></i> Expenses Management</h1>
+            <p>Track your daily business expenses, utility bills, and other costs.</p>
+          </div>
+          <button class="btn btn-save" onclick="openExpenseModal()"><i class="fa-solid fa-plus"></i> Add New Expense</button>
+        </header>
+
+        <div class="table-card">
+          <div class="table-header">
+            <h3><i class="fa-solid fa-list-ul"></i> Expenses List</h3>
+            <div class="search-input" style="width: 300px; max-width: 100%;">
+              <i class="fa-solid fa-search"></i>
+              <input type="text" id="search-expense" placeholder="Search expenses..." autocomplete="off">
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>DATE</th>
+                  <th>TYPE</th>
+                  <th>CATEGORY</th>
+                  <th>DESCRIPTION</th>
+                  <th>AMOUNT</th>
+                  <th>ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody id="expense-tbody">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Expense Modal -->
+    <div class="modal-backdrop" id="expense-modal">
+      <div class="modal">
+        <div class="modal-header">
+          <h3><i class="fa-solid fa-file-invoice-dollar"></i> Add Expense</h3>
+          <button class="modal-close" onclick="closeExpenseModal()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="expense-form">
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" id="exp-date" required>
+            </div>
+                          <div class="form-group">
+                <label>Transaction Type</label>
+                <select id="exp-type" required>
+                  <option value="out">Cash Out (Expense)</option>
+                  <option value="in">Cash In</option>
+                </select>
+              </div>
+              <div class="form-group">
+              <label>Category</label>
+              <select id="exp-category" required>
+                <option value="Bills/Utilities">Bills/Utilities</option>
+                <option value="Salary/Wages">Salary/Wages</option>
+                <option value="Supplies/Inventory">Supplies/Inventory</option>
+                <option value="Maintenance">Maintenance</option>
+                <option value="Rent">Rent</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Description (Optional)</label>
+              <input type="text" id="exp-desc" placeholder="E.g. Electricity bill for October">
+            </div>
+            <div class="form-group">
+              <label>Amount (LKR)</label>
+              <input type="number" id="exp-amount" min="0" step="0.01" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-cancel" onclick="closeExpenseModal()">Cancel</button>
+            <button type="submit" class="btn btn-save">Save Expense</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <script type="module" src="/src/expenses.js"></script>
+  </body>
+</html>
+
+
+
+
+
+
+
+
+

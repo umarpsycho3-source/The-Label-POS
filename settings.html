@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>POS System - Settings</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/src/navbar.css">
+    <style>
+      :root {
+        --primary: #6366f1;
+        --primary-hover: #4f46e5;
+        --secondary: #ec4899;
+        --success: #10b981;
+        --bg: #f8fafc;
+        --surface: #ffffff;
+        --text: #1e293b;
+        --text-sub: #64748b;
+        --border: #e2e8f0;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        font-family: 'Outfit', sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+      #app-layout {
+        /* Removed flex to fix horizontal top navbar */
+        min-height: 100vh;
+      }
+      .main-content {
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .page-header {
+        margin-bottom: 2rem;
+      }
+      .page-header h1 {
+        font-size: 1.8rem;
+        color: var(--text);
+      }
+      .page-header p {
+        color: var(--text-sub);
+        margin-top: 0.2rem;
+      }
+      .settings-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        max-width: 800px;
+      }
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text);
+      }
+      .form-group input, .form-group textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-family: 'Outfit', sans-serif;
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      .form-group input:focus, .form-group textarea:focus {
+        border-color: var(--primary);
+      }
+      .btn-save {
+        background: var(--success);
+        color: #fff;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s, background 0.2s;
+      }
+      .btn-save:hover {
+        background: #059669;
+        transform: translateY(-1px);
+      }
+      .logo-preview {
+          width: 100px;
+          height: 100px;
+          border: 2px dashed var(--border);
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-top: 10px;
+          overflow: hidden;
+          background: #f8fafc;
+      }
+      .logo-preview img {
+          max-width: 100%;
+          max-height: 100%;
+          object-fit: contain;
+      }
+          .code-word-grid {
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
+          gap: 10px;
+          margin-top: 5px;
+      }
+      .code-word-item {
+          display: flex;
+          align-items: center;
+          background: #f1f5f9;
+          border: 1px solid #e2e8f0;
+          border-radius: 6px;
+          overflow: hidden;
+      }
+      .code-word-item span {
+          padding: 8px 12px;
+          background: #e2e8f0;
+          font-weight: 700;
+          color: #475569;
+          border-right: 1px solid #cbd5e1;
+      }
+      .code-word-item input {
+          width: 100%;
+          border: none;
+          padding: 8px;
+          text-align: center;
+          font-weight: 700;
+          text-transform: uppercase;
+          outline: none;
+          background: transparent;
+      }
+      .code-word-item input:focus {
+          background: #fff;
+      }
+    </style>
+      <script type="module" src="/src/sync.js"></script>
+</head>
+  <body>
+    <div id="app-layout">
+      <!-- Navbar -->
+      <nav class="navbar">
+        <div class="nav-links">
+          <a href="/dashboard.html"><i class="fa-solid fa-gauge-high"></i><br>Dashboard</a>
+          <a href="/pos.html"><i class="fa-solid fa-cash-register"></i><br>POS</a>
+          <a href="/sales.html"><i class="fa-solid fa-cart-shopping"></i><br>Sales</a>
+          <a href="/products.html"><i class="fa-solid fa-tags"></i><br>Products</a>
+          <a href="/stock.html"><i class="fa-solid fa-box"></i><br>Stock</a>
+          <a href="/customers.html"><i class="fa-solid fa-users"></i><br>Customers</a>
+          <a href="/expenses.html"><i class="fa-solid fa-money-bill-transfer"></i><br>Cash Flow</a>
+          <a href="/reports.html"><i class="fa-solid fa-chart-line"></i><br>Reports</a>
+          <a href="/" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i><br>Logout</a>
+          <a href="/settings.html" class="active"><i class="fa-solid fa-gear"></i><br>Settings</a>
+        </div>
+      </nav>
+
+      <main class="main-content">
+        <div class="page-header">
+          <h1>System Settings</h1>
+          <p>Configure your POS store details, logo, and receipt information.</p>
+        </div>
+
+        <div class="settings-card">
+          <form id="settings-form">
+            <div class="form-group">
+                <label>Shop Logo (For Print Receipts)</label>
+                <input type="file" id="set-logo" accept="image/*">
+                <div class="logo-preview" id="logo-preview-box">
+                    <span style="color: #94a3b8; font-size: 0.8rem;">No Logo</span>
+                </div>
+                <input type="hidden" id="set-logo-base64">
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem;">
+              <div class="form-group">
+                <label>Shop Name</label>
+                <input type="text" id="set-name" value="THE LABEL" required>
+              </div>
+              <div class="form-group">
+                <label>Currency Symbol</label>
+                <input type="text" id="set-currency" value="LKR" required>
+              </div>
+            </div>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem;">
+              <div class="form-group">
+                <label>Shop Address</label>
+                <input type="text" id="set-address" value="123 Main Street, City" required>
+              </div>
+                            <div class="form-group">
+                <label>Cost Code Word Map (1 = First Box, 0 = Last Box)</label>
+                <div class="code-word-grid">
+                    <div class="code-word-item"><span>1</span><input type="text" id="cw-1" maxlength="1" class="cw-input"></div>
+                    <div class="code-word-item"><span>2</span><input type="text" id="cw-2" maxlength="1" class="cw-input"></div>
+                    <div class="code-word-item"><span>3</span><input type="text" id="cw-3" maxlength="1" class="cw-input"></div>
+                    <div class="code-word-item"><span>4</span><input type="text" id="cw-4" maxlength="1" class="cw-input"></div>
+                    <div class="code-word-item"><span>5</span><input type="text" id="cw-5" maxlength="1" class="cw-input"></div>
+                    <div class="code-word-item"><span>6</span><input type="text" id="cw-6" maxlength="1" class="cw-input"></div>
+                    <div class="code-word-item"><span>7</span><input type="text" id="cw-7" maxlength="1" class="cw-input"></div>
+                    <div class="code-word-item"><span>8</span><input type="text" id="cw-8" maxlength="1" class="cw-input"></div>
+                    <div class="code-word-item"><span>9</span><input type="text" id="cw-9" maxlength="1" class="cw-input"></div>
+                    <div class="code-word-item"><span>0</span><input type="text" id="cw-0" maxlength="1" class="cw-input"></div>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem;">
+              <div class="form-group">
+                <label>Phone Number</label>
+                <input type="text" id="set-phone" value="+94 77 000 0000" required>
+              </div>
+              <div class="form-group">
+                <label>Tax / Reg Number</label>
+                <input type="text" id="set-tax" value="NTN: 0000000-0">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Receipt Footer Message</label>
+              <textarea id="set-footer" rows="2">Thank you! Please come again.</textarea>
+            </div>
+
+            <div style="text-align:right;">
+              <button type="submit" class="btn-save"><i class="fa-solid fa-floppy-disk"></i> Save Settings</button>
+            </div>
+                    </form>
+        </div>
+
+        <div class="settings-card" style="margin-top: 2rem; border-color: #fee2e2;">
+          <h2 style="color: #ef4444; font-size: 1.2rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-triangle-exclamation"></i> Danger Zone - Data Reset</h2>
+          <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem;">Reset all sales, products, customers, and expense data from local memory and cloud database.</p>
+          <button id="btn-reset-data" style="background: #ef4444; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 700; cursor: pointer;">
+            <i class="fa-solid fa-trash-can"></i> Clear & Reset All System Data
+          </button>
+        </div>
+
+      </main>
+    </div>
+
+    <script type="module" src="/src/settings.js"></script>
+  </body>
+</html>
+
+
+
+
+
+
+
+
+

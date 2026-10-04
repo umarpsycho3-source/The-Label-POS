@@ -1,0 +1,189 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>POS System - Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/src/navbar.css">
+    <link rel="stylesheet" href="/src/dashboard.css">
+      <script type="module" src="/src/sync.js"></script>
+</head>
+  <body>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay" style="position:fixed;inset:0;background:white;display:flex;align-items:center;justify-content:center;flex-direction:column;z-index:9999;transition:opacity 0.4s;">
+      <div class="spinner-container" style="display:flex;flex-direction:column;align-items:center;gap:1rem;">
+        <svg width="60" height="60" viewBox="0 0 50 50" class="spinner-svg" style="animation:spin 1.2s linear infinite;"><style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+          <circle cx="25" cy="25" r="20" fill="none" stroke="#34d399" stroke-width="4" stroke-linecap="round" stroke-dasharray="35 100"></circle>
+          <circle cx="25" cy="25" r="20" fill="none" stroke="#6366f1" stroke-width="4" stroke-linecap="round" stroke-dasharray="35 100" stroke-dashoffset="-62"></circle>
+        </svg>
+        <div class="loading-text" style="font-family:'Outfit',sans-serif;font-weight:700;color:#6366f1;letter-spacing:2px;">LOADING...</div>
+      </div>
+    </div>
+
+    <div id="dashboard-app">
+      <!-- Navbar -->
+      <nav class="navbar">
+        <div class="nav-links">
+          <a href="/dashboard.html" class="active"><i class="fa-solid fa-gauge-high"></i><br>Dashboard</a>
+          <a href="/pos.html"><i class="fa-solid fa-cash-register"></i><br>POS</a>
+          <a href="/sales.html"><i class="fa-solid fa-cart-shopping"></i><br>Sales</a>
+          <a href="/products.html"><i class="fa-solid fa-tags"></i><br>Products</a>
+          <a href="/stock.html"><i class="fa-solid fa-box"></i><br>Stock</a>
+          <a href="/customers.html"><i class="fa-solid fa-users"></i><br>Customers</a>
+          <a href="/balance.html"><i class="fa-solid fa-hand-holding-dollar"></i><br>Balance</a>
+          <a href="/cheque.html"><i class="fa-solid fa-money-check-dollar"></i><br>Cheque</a>
+          <a href="/expenses.html"><i class="fa-solid fa-money-bill-transfer"></i><br>Expenses</a>
+          <a href="/reports.html"><i class="fa-solid fa-chart-line"></i><br>Reports</a>
+          <a href="/" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i><br>Logout</a>
+          <a href="/settings.html"><i class="fa-solid fa-gear"></i><br>Settings</a>
+          </div>
+      </nav>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Header -->
+        <header class="dashboard-header">
+          <div>
+            <h1 id="greeting-text">Welcome, Admin!</h1>
+            <p id="greeting-sub">Welcome back to your dashboard.</p>
+          </div>
+          <div class="date-time" id="datetime-display"></div>
+        </header>
+
+        <!-- Metric Cards -->
+        <section class="metrics-grid">
+          <!-- Cards injected via JS -->
+        </section>
+
+        <!-- Charts -->
+        <section class="charts-section">
+          <div class="card chart-card">
+            <h2><i class="fa-solid fa-chart-simple"></i> Monthly Sales Overview</h2>
+            <canvas id="barChart"></canvas>
+          </div>
+          <div class="card chart-card">
+            <h2><i class="fa-solid fa-chart-pie"></i> Category Sales Distribution</h2>
+            <div style="max-height: 300px; display: flex; justify-content: center;">
+              <canvas id="pieChart"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tables Section -->
+        <section class="tables-section">
+          <!-- Recent Invoices Table -->
+          <div class="card table-card">
+            <div class="card-header">
+              <h2>Recent Invoices</h2>
+              <button class="btn-primary" onclick="window.location.href='/sales.html'">View All Sales</button>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>VIEW</th>
+                    <th>BILL ID</th>
+                    <th>DATE</th>
+                    <th>TIME</th>
+                    <th style="text-align: right;">AMOUNT</th>
+                    <th style="text-align: center;">ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody id="invoices-tbody">
+                  <!-- Injected via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Customer Credit Table -->
+          <div class="card table-card">
+            <div class="card-header">
+              <h2>Customer Credit Due</h2>
+              <button class="btn-primary" onclick="window.location.href='/balance.html'">View All</button>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>CUSTOMER</th>
+                    <th>PHONE</th>
+                    <th>PRODUCTS</th>
+                    <th>DUE DATE</th>
+                    <th style="text-align: right;">BALANCE</th>
+                    <th style="text-align: right;">ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody id="credit-tbody">
+                  <!-- Injected via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Cheque Reminder Table -->
+          <div class="card table-card">
+            <div class="card-header">
+              <h2>Cheque Reminder (Pending)</h2>
+              <button class="btn-primary">View All</button>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>CHEQUE NO</th>
+                    <th>TYPE</th>
+                    <th>PAYEE / BANK</th>
+                    <th>DUE DATE</th>
+                    <th style="text-align: right;">AMOUNT</th>
+                    <th style="text-align: center;">STATUS</th>
+                    <th style="text-align: right;">ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody id="cheque-tbody">
+                  <!-- Injected via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Low Stock Table -->
+          <div class="card table-card">
+            <div class="card-header">
+              <h2 style="color: #dc2626;"><i class="fa-solid fa-triangle-exclamation"></i> Low Stock Alert (Main Store)</h2>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>PRODUCT</th>
+                    <th style="text-align: center;">MIN. LEVEL</th>
+                    <th style="text-align: right;">STOCK</th>
+                    <th style="text-align: right;">ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody id="lowstock-tbody">
+                  <!-- Injected via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+    <script type="module" src="/src/dashboard.js"></script>
+  </body>
+</html>
+
+
+
+
+
+
+

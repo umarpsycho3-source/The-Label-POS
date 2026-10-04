@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>POS System - Sales</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/src/navbar.css">
+    <link rel="stylesheet" href="/src/dashboard.css">
+    <link rel="stylesheet" href="/src/sales.css">
+      <script type="module" src="/src/sync.js"></script>
+</head>
+  <body>
+    <div id="dashboard-app">
+      <!-- Navbar -->
+      <nav class="navbar">
+        <div class="nav-links">
+          <a href="/dashboard.html"><i class="fa-solid fa-gauge-high"></i><br>Dashboard</a>
+          <a href="/pos.html"><i class="fa-solid fa-cash-register"></i><br>POS</a>
+          <a href="/sales.html" class="active"><i class="fa-solid fa-cart-shopping"></i><br>Sales</a>
+          <a href="/products.html"><i class="fa-solid fa-tags"></i><br>Products</a>
+          <a href="/stock.html"><i class="fa-solid fa-box"></i><br>Stock</a>
+          <a href="/customers.html"><i class="fa-solid fa-users"></i><br>Customers</a>
+          <a href="/balance.html"><i class="fa-solid fa-hand-holding-dollar"></i><br>Balance</a>
+          <a href="#"><i class="fa-solid fa-money-check-dollar"></i><br>Cheque</a>
+          <a href="/reports.html"><i class="fa-solid fa-chart-line"></i><br>Reports</a>
+          <a href="/" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i><br>Logout</a>
+          <a href="/settings.html"><i class="fa-solid fa-gear"></i><br>Settings</a>
+          </div>
+      </nav>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        
+        <div class="page-header">
+          <h1><i class="fa-solid fa-cart-shopping"></i> Sales Management</h1>
+          <p>Manage your sales, invoices, and billing details.</p>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="filter-card">
+          <div class="filter-header">
+            <i class="fa-solid fa-filter"></i> Search & Filters
+          </div>
+          
+          <div class="filter-row">
+            <div class="filter-group">
+              <label>Store Location</label>
+              <select class="filter-control" id="filter-store">
+                <option value="Any">Any</option>
+                <option value="Main Store">Main Store</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>From Date</label>
+              <input type="date" class="filter-control" id="filter-from-date" value="2026-10-02">
+            </div>
+            <div class="filter-group">
+              <label>To Date</label>
+              <input type="date" class="filter-control" id="filter-to-date" value="2026-10-02">
+            </div>
+            <div style="flex: 0 0 auto;">
+              <button class="btn-filter-primary" id="btn-apply-filter"><i class="fa-solid fa-check"></i> Apply Filter</button>
+            </div>
+          </div>
+          
+          <div class="filter-row" style="margin-bottom: 0;">
+            <div class="filter-group" style="flex: 1.5;">
+              <label>Search Invoice</label>
+              <div style="display: flex;">
+                <input type="text" class="filter-control" id="filter-search-id" placeholder="Bill ID..." style="border-radius: 6px 0 0 6px; border-right: none;">
+                <button id="btn-search-icon" style="background: #64748b; color: white; border: none; padding: 0 1rem; border-radius: 0 6px 6px 0; cursor: pointer;"><i class="fa-solid fa-magnifying-glass"></i></button>
+              </div>
+            </div>
+            <div class="filter-group">
+              <label>Payment Type</label>
+              <select class="filter-control" id="filter-payment">
+                <option value="Any">Any</option>
+                <option value="Cash">Cash</option>
+                <option value="Card">Card</option>
+                <option value="Cheque">Cheque</option>
+                <option value="Credit">Credit (Due)</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>Cashier</label>
+              <select class="filter-control" id="filter-cashier">
+                <option value="Any">Any</option>
+                <option value="Admin User">Admin User</option>
+              </select>
+            </div>
+            <div style="flex: 0 0 auto;">
+              <button class="btn-filter-secondary" id="btn-filter-secondary"><i class="fa-solid fa-sliders"></i> Filter</button>
+            </div>
+            <div class="filter-group" style="align-items: flex-end; justify-content: flex-end; padding-bottom: 0.2rem;">
+              <div class="quick-ranges">
+                <label style="margin-bottom: 0; margin-right: 0.5rem;">Quick Ranges</label>
+                <button class="btn-range active" data-range="today">Today</button>
+                <button class="btn-range" data-range="yesterday">Yesterday</button>
+                <button class="btn-range" data-range="week">Week</button>
+                <button class="btn-range" data-range="month">Month</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Data Table Section -->
+        <div class="data-card">
+          <div class="data-card-header">
+            <i class="fa-solid fa-list"></i> Sales List
+          </div>
+          <div class="table-wrapper">
+            <table class="management-table">
+              <thead>
+                <tr>
+                  <th>NO.</th>
+                  <th>ACTIONS</th>
+                  <th>STATUS</th>
+                  <th>BILL INFO</th>
+                  <th>TOTAL</th>
+                  <th style="color: #16a34a;">POINTS CLAIM</th>
+                  <th>CASH PAYMENT</th>
+                  <th>CARD PAYMENT</th>
+                  <th>CHEQUE PAYMENT</th>
+                  <th>USER</th>
+                  <th>CUSTOMER</th>
+                  <th>DATE/TIME</th>
+                </tr>
+              </thead>
+              <tbody id="management-tbody">
+                <!-- Data injected via JS -->
+              </tbody>
+              <tfoot id="management-tfoot">
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+      </main>
+    </div>
+    <script type="module" src="/src/sales.js"></script>
+  </body>
+</html>
+
+
+
+
+

@@ -1,0 +1,156 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Customer Balance</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/src/navbar.css">
+    <link rel="stylesheet" href="/src/customers.css">
+    <style>
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .summary-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            border: 1px solid #f1f5f9;
+        }
+        .summary-card.receivable .card-icon { color: #3b82f6; background: #eff6ff; }
+        .summary-card.overdue .card-icon { color: #ef4444; background: #fee2e2; }
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+        .card-info h3 { font-size: 0.9rem; color: #64748b; margin: 0 0 0.5rem 0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;}
+        .card-info .amount { font-size: 2rem; font-weight: 800; color: #1e293b; line-height: 1;}
+        .settle-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .settle-btn:hover { background: #059669; transform: translateY(-1px); }
+    </style>
+      <script type="module" src="/src/sync.js"></script>
+</head>
+  <body>
+    <div id="app">
+      <!-- Navbar -->
+      <nav class="navbar">
+        <div class="nav-links">
+          <a href="/dashboard.html"><i class="fa-solid fa-gauge-high"></i><br>Dashboard</a>
+          <a href="/pos.html"><i class="fa-solid fa-cash-register"></i><br>POS</a>
+          <a href="/sales.html"><i class="fa-solid fa-cart-shopping"></i><br>Sales</a>
+          <a href="/products.html"><i class="fa-solid fa-tags"></i><br>Products</a>
+          <a href="/stock.html"><i class="fa-solid fa-box"></i><br>Stock</a>
+          <a href="/customers.html"><i class="fa-solid fa-users"></i><br>Customers</a>
+          <a href="/balance.html" class="active"><i class="fa-solid fa-hand-holding-dollar"></i><br>Balance</a>
+          <a href="/cheque.html"><i class="fa-solid fa-money-check-dollar"></i><br>Cheque</a>
+          <a href="/expenses.html"><i class="fa-solid fa-money-bill-transfer"></i><br>Expenses</a>
+          <a href="/reports.html"><i class="fa-solid fa-chart-line"></i><br>Reports</a>
+          <a href="/" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i><br>Logout</a>
+          <a href="/settings.html"><i class="fa-solid fa-gear"></i><br>Settings</a>
+          </div>
+      </nav>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <header class="page-header">
+          <div>
+            <h1><i class="fa-solid fa-scale-balanced" style="color:#2563eb;"></i> Customer Balance</h1>
+            <p>Manage outstanding credits and receive payments.</p>
+          </div>
+        </header>
+
+        <div class="summary-cards">
+            <div class="summary-card receivable">
+                <div class="card-icon"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                <div class="card-info">
+                    <h3>Total Accounts Receivable</h3>
+                    <div class="amount" id="total-receivable">0.00</div>
+                </div>
+            </div>
+            <div class="summary-card overdue">
+                <div class="card-icon"><i class="fa-solid fa-calendar-xmark"></i></div>
+                <div class="card-info">
+                    <h3>Total Overdue (>30 Days)</h3>
+                    <div class="amount" id="total-overdue">0.00</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-card">
+          <div class="table-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+            <h3 style="margin:0;"><i class="fa-solid fa-list-ul"></i> Outstanding Balances</h3>
+            <div style="display:flex; gap:1rem; align-items:center; flex-wrap:wrap;">
+              <div class="search-input" style="width: 250px;">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" id="search-balance" placeholder="Search Customer..." autocomplete="off" oninput="renderBalances()">
+              </div>
+              <div style="display:flex; align-items:center; gap:0.5rem; background:#f8fafc; padding:0.3rem 0.8rem; border-radius:6px; border:1px solid #e2e8f0;">
+                <label style="font-size:0.8rem; font-weight:600; color:#64748b;">From:</label>
+                <input type="date" id="filter-date-from" style="border:none; background:transparent; outline:none; color:#1e293b; font-weight:500; font-family:inherit;" onchange="renderBalances()">
+              </div>
+              <div style="display:flex; align-items:center; gap:0.5rem; background:#f8fafc; padding:0.3rem 0.8rem; border-radius:6px; border:1px solid #e2e8f0;">
+                <label style="font-size:0.8rem; font-weight:600; color:#64748b;">To:</label>
+                <input type="date" id="filter-date-to" style="border:none; background:transparent; outline:none; color:#1e293b; font-weight:500; font-family:inherit;" onchange="renderBalances()">
+              </div>
+              <button onclick="document.getElementById('filter-date-from').value=''; document.getElementById('filter-date-to').value=''; document.getElementById('search-balance').value=''; renderBalances();" style="background:#e2e8f0; border:none; padding:0.5rem; border-radius:6px; cursor:pointer; color:#475569;" title="Clear Filters"><i class="fa-solid fa-filter-circle-xmark"></i></button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>CUSTOMER</th>
+                  <th>PHONE</th>
+                  <th>PRODUCTS</th>
+                  <th>DUE DATE</th>
+                  <th style="text-align: right;">BALANCE</th>
+                  <th style="text-align: right;">ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody id="balance-list">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+    
+    <div id="modals-container"></div>
+    <script type="module" src="/src/balance.js"></script>
+  </body>
+</html>
+
+
+
+
+

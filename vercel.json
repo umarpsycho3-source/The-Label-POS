@@ -1,0 +1,20 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/dashboard", "destination": "/dashboard.html" },
+    { "source": "/pos", "destination": "/pos.html" },
+    { "source": "/sales", "destination": "/sales.html" },
+    { "source": "/products", "destination": "/products.html" },
+    { "source": "/stock", "destination": "/stock.html" },
+    { "source": "/customers", "destination": "/customers.html" },
+    { "source": "/balance", "destination": "/balance.html" },
+    { "source": "/cheque", "destination": "/cheque.html" },
+    { "source": "/expenses", "destination": "/expenses.html" },
+    { "source": "/reports", "destination": "/reports.html" },
+    { "source": "/settings", "destination": "/settings.html" },
+    { "source": "/edit-bill", "destination": "/edit-bill.html" },
+    { "source": "/view-sale", "destination": "/view-sale.html" }
+  ]
+}

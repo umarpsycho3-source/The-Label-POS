@@ -1,0 +1,366 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>POS System - Billing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/src/pos.css">
+    <style>
+      .modal-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(3px); }
+      .modal-backdrop.open { display:flex; }
+      .modal { background:#fff; width:100%; border-radius:12px; overflow:hidden; animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+      @keyframes slideUp{ from{opacity:0; transform:translateY(40px) scale(0.95);} to{opacity:1; transform:translateY(0) scale(1);} }
+      .modal-header { padding:15px 20px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; }
+      .modal-header h3 { margin:0; font-size:1.1rem; color:#1e293b; }
+      .modal-close { background:none; border:none; font-size:1.2rem; cursor:pointer; color:#64748b; }
+      .modal-body { padding:20px; }
+      .form-group { margin-bottom:15px; }
+      .form-group label { display:block; font-size:0.85rem; font-weight:600; margin-bottom:5px; color:#475569; }
+      .form-group input, .form-group select { width:100%; padding:10px 14px; border:2px solid #e2e8f0; border-radius:8px; font-family:'Outfit'; outline:none; transition:border 0.2s; box-sizing: border-box; }
+      .form-group input:focus, .form-group select:focus { border-color:#3b82f6; }
+      .modal-footer { padding:20px; border-top:1px solid #e2e8f0; display:flex; justify-content:flex-end; gap:10px; background:#f8fafc; }
+      @media print {
+        body * { visibility: hidden; }
+        #print-receipt, #print-receipt * { visibility: visible; }
+        #print-receipt { position: absolute; left: 0; top: 0; width: 100%; font-family: monospace; }
+        @page { margin: 0; }
+      }
+    </style>
+    <script type="module" src="/src/sync.js"></script>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+      <div class="spinner-container">
+        <svg width="60" height="60" viewBox="0 0 50 50" class="spinner-svg">
+          <circle cx="25" cy="25" r="20" fill="none" stroke="#34d399" stroke-width="4" stroke-linecap="round" stroke-dasharray="35 100"></circle>
+          <circle cx="25" cy="25" r="20" fill="none" stroke="#6366f1" stroke-width="4" stroke-linecap="round" stroke-dasharray="35 100" stroke-dashoffset="-62"></circle>
+        </svg>
+        <div class="loading-text">LOADING...</div>
+      </div>
+    </div>
+
+    <div id="pos-app">
+        <!-- Sidebar -->
+        <aside class="pos-sidebar">
+            <div class="sidebar-header">
+                <div class="admin-info" style="margin-top: 0.5rem;">
+                    <strong>Admin</strong><br>
+                    <small><i class="fa-solid fa-location-dot"></i> Main Store</small>
+                </div>
+                <div class="clock" id="pos-clock"></div>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="/dashboard.html"><i class="fa-solid fa-gauge"></i> Dashboard</a></li>
+                <li><a href="#" onclick="window.openProductsModal()"><i class="fa-solid fa-list"></i> Products</a></li>
+                <li><a href="#" onclick="window.openReturnModal()"><i class="fa-solid fa-rotate-left"></i> Return</a></li>
+                <li><a href="#" onclick="window.openOtherModal()"><i class="fa-solid fa-plus"></i> Other (F4)</a></li>
+                <li><a href="#" onclick="window.openQuotationsModal()"><i class="fa-solid fa-file-invoice"></i> Quotations</a></li>
+                <li><a href="#" onclick="window.openNewQuotationModal()"><i class="fa-solid fa-file-circle-plus"></i> New Quotations</a></li>
+                <li><a href="#" onclick="window.openBalanceModal()"><i class="fa-solid fa-scale-balanced"></i> Balance</a></li>
+                <li><a href="#" onclick="window.openTodaySaleModal()"><i class="fa-solid fa-chart-line"></i> Today Sale</a></li>
+                <li><a href="#"><i class="fa-solid fa-pause"></i> Hold Bill</a></li>
+                <li><a href="#" onclick="window.openCashInOutModal()"><i class="fa-solid fa-money-bill-transfer"></i> Cash In/Out</a></li>
+                <li><a href="#"><i class="fa-solid fa-print"></i> Last Bill (F1)</a></li>
+                </ul>
+            <a href="/" class="logout-btn-sidebar"><i class="fa-solid fa-right-from-bracket"></i> LOGOUT</a>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="pos-main">
+            <!-- Search Bar -->
+            <div class="search-section">
+                <div class="search-input stock-search-box" style="margin-bottom: 0; padding: 0.3rem 0.8rem;">
+                    <i class="fa-solid fa-barcode" style="color:#a1a5b7;"></i>
+                    <input type="text" id="barcode-input" placeholder="Scan Barcode / Product Name (Insert)" autofocus style="flex:1;">
+                    <i class="fa-solid fa-caret-down pos-caret" style="color:#6b7280; cursor:pointer;"></i>
+                    <div id="pos-search-results" class="search-dropdown"></div>
+                </div>
+                <div class="qty-input">
+                    <input type="number" id="qty-input" value="1" placeholder="Qty" min="1">
+                </div>
+                <button id="add-item-btn" class="btn-primary">Add</button>
+            </div>
+
+            <!-- Bill Table -->
+            <div class="bill-section">
+                <div class="bill-header">
+                    <span style="font-weight: 600; color: #4b5563;">Current Bill Items</span>
+                    <small style="color: #6b7280;"><i class="fa-solid fa-circle-info"></i> Press End key to edit last item</small>
+                </div>
+                <div class="table-container">
+                    <table class="bill-table">
+                        <thead>
+                            <tr>
+                                <th>ITEM NAME</th>
+                                <th>PRICE</th>
+                                <th>DIS(%)</th>
+                                <th>DIS(AMT)</th>
+                                <th>RATE</th>
+                                <th>QTY</th>
+                                <th style="text-align: right;">AMOUNT</th>
+                                <th style="text-align: center;">ACTION</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bill-items">
+                            <!-- Items go here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Bottom Actions -->
+            <div class="bottom-actions">
+                <div class="left-actions">
+                    <div class="system-status">System Status: <span class="text-success"><i class="fa-solid fa-check"></i> Complete</span></div>
+                    
+                    <div class="action-buttons-wrapper">
+                        <div class="action-buttons">
+                            <button class="btn-action blue" onclick="window.location.href='/cheque.html'">
+                                <i class="fa-solid fa-money-check"></i>
+                                <span>Cheque</span>
+                            </button>
+                            <button class="btn-action green">
+                                <i class="fa-solid fa-gift"></i>
+                                <span>Free (F7)</span>
+                            </button>
+                            <button class="btn-action yellow" onclick="window.location.href='/products.html'">
+                                <i class="fa-solid fa-box-open"></i>
+                                <span>Products</span>
+                            </button>
+                            <button class="btn-action teal" onclick="window.location.href='/balance.html'">
+                                <i class="fa-solid fa-credit-card"></i>
+                                <span>Credits</span>
+                            </button>
+                            <button class="btn-action red" onclick="window.openDayEndModal()">
+                                <i class="fa-solid fa-power-off"></i>
+                                <span>Day End</span>
+                            </button>
+                            <button class="btn-action purple" onclick="window.location.href='/customers.html'">
+                                <i class="fa-solid fa-users"></i>
+                                <span>Customer</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payment-summary">
+                    <div class="total-display">
+                        <div class="amount" id="total-amount">0.00</div>
+                        <div class="stats">
+                            <span class="badge-red">Disc: <span id="total-disc">0.00</span></span>
+                            <span class="stat-sep">|</span>
+                            <span>Items: <span id="total-items">0</span></span>
+                            <span class="stat-sep">|</span>
+                            <span>Qty: <span id="total-qty">0</span></span>
+                        </div>
+                    </div>
+                    <div class="payment-buttons">
+                        <button class="btn-payment" id="btn-payment"><i class="fa-solid fa-circle-check"></i> PAYMENT (+)</button>
+                        <div class="sub-buttons">
+                            <button class="btn-sub hold"><i class="fa-solid fa-pause"></i> Hold</button>
+                            <button class="btn-sub new" id="btn-new-bill"><i class="fa-solid fa-plus"></i> New Bill</button>
+                            <button class="btn-sub close" onclick="window.location.href='/dashboard.html'"><i class="fa-solid fa-xmark"></i> Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Modals Container -->
+        <div id="modals-container"></div>
+        <!-- Cash In/Out Modal -->
+        <div class="modal-backdrop" id="cash-in-out-modal">
+            <div class="modal" style="max-width: 800px; width: 95%;">
+                <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3><i class="fa-solid fa-filter" style="color:#64748b;"></i> FILTER TRANSACTIONS</h3>
+                    <button class="modal-close" onclick="closeCashInOutModal()" style="background:#e2e8f0;border-radius:50%;width:28px;height:28px;border:none;cursor:pointer;"><i class="fa-solid fa-xmark" style="font-size:12px;"></i></button>
+                </div>
+                <div class="modal-body" style="padding: 20px; background: #f8fafc;">
+                    
+                    <!-- Top Filters -->
+                    <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 20px; align-items: end;">
+                        <div class="form-group" style="margin:0;">
+                            <label style="font-size:0.75rem; color:#64748b;">From</label>
+                            <input type="date" id="cio-from" style="padding: 8px; border: 1px solid #cbd5e1; border-radius:6px; width:100%;">
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label style="font-size:0.75rem; color:#64748b;">To</label>
+                            <input type="date" id="cio-to" style="padding: 8px; border: 1px solid #cbd5e1; border-radius:6px; width:100%;">
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label style="font-size:0.75rem; color:#64748b;">User</label>
+                            <select style="padding: 8px; border: 1px solid #cbd5e1; border-radius:6px; width:100%;"><option>All Users</option></select>
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label style="font-size:0.75rem; color:#64748b;">Location</label>
+                            <select style="padding: 8px; border: 1px solid #cbd5e1; border-radius:6px; width:100%;"><option>All Locations</option></select>
+                        </div>
+                        <div>
+                            <button class="btn-primary" style="width:100%; padding: 8px; background:#3b82f6; border-radius:6px; border:none; color:#fff; font-weight:600;"><i class="fa-solid fa-magnifying-glass"></i> Filter</button>
+                        </div>
+                    </div>
+
+                    <!-- Summary Cards -->
+                    <div style="display:grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 15px; margin-bottom: 20px;">
+                        <div style="background:#fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <div style="font-size:0.75rem; font-weight:700; color:#10b981;">TOTAL CASH IN</div>
+                                <div style="font-size:1.5rem; font-weight:700; color:#1e293b;" id="cio-total-in">0.00</div>
+                            </div>
+                            <div style="background:#10b981; color:#fff; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+                                <i class="fa-solid fa-arrow-down"></i>
+                            </div>
+                        </div>
+                        <div style="background:#fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <div style="font-size:0.75rem; font-weight:700; color:#ef4444;">TOTAL CASH OUT</div>
+                                <div style="font-size:1.5rem; font-weight:700; color:#1e293b;" id="cio-total-out">0.00</div>
+                            </div>
+                            <div style="background:#ef4444; color:#fff; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+                                <i class="fa-solid fa-arrow-up"></i>
+                            </div>
+                        </div>
+                        <div style="background:#fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <div style="font-size:0.75rem; font-weight:700; color:#475569;">NET BALANCE</div>
+                                <div style="font-size:1.5rem; font-weight:700; color:#1e293b;" id="cio-net-balance">0.00</div>
+                            </div>
+                            <div style="background:#6366f1; color:#fff; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+                                <i class="fa-solid fa-scale-balanced"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- New Entry Form -->
+                    <div style="background:#fff; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 20px;">
+                        <div style="padding: 10px 15px; border-bottom: 1px solid #e2e8f0; font-weight:600; color:#10b981; font-size:0.9rem;">
+                            <i class="fa-solid fa-circle-plus"></i> New Entry
+                        </div>
+                        <form id="cio-form" style="display:grid; grid-template-columns: 1.5fr 3fr 1.5fr auto; gap: 15px; padding: 15px; align-items:end;">
+                            <div class="form-group" style="margin:0;">
+                                <label style="font-size:0.75rem; color:#64748b; font-weight:600;">Transaction Type</label>
+                                <select id="cio-type" style="padding: 8px; border: 1px solid #cbd5e1; border-radius:6px; width:100%;" required>
+                                    <option value="">- Select Type -</option>
+                                    <option value="in">Cash In</option>
+                                    <option value="out">Cash Out</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin:0;">
+                                <label style="font-size:0.75rem; color:#64748b; font-weight:600;">Description / Remark</label>
+                                <input type="text" id="cio-desc" placeholder="Enter details here..." style="padding: 8px; border: 1px solid #cbd5e1; border-radius:6px; width:100%;" required>
+                            </div>
+                            <div class="form-group" style="margin:0;">
+                                <label style="font-size:0.75rem; color:#64748b; font-weight:600;">Amount</label>
+                                <input type="number" id="cio-amount" min="0" step="0.01" value="0.00" style="padding: 8px; border: 1px solid #cbd5e1; border-radius:6px; width:100%;" required>
+                            </div>
+                            <div>
+                                <button type="submit" style="padding: 8px 20px; background:#22c55e; border-radius:6px; border:none; color:#fff; font-weight:600; cursor:pointer;"><i class="fa-solid fa-plus"></i> Add</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Ledger Table -->
+                    <div style="background:#fff; border: 1px solid #e2e8f0; border-radius: 8px; overflow:hidden;">
+                        <table style="width:100%; border-collapse:collapse; text-align:left;">
+                            <thead>
+                                <tr style="background:#334155; color:#fff; font-size:0.85rem;">
+                                    <th style="padding:10px 15px; width:100px;">Type</th>
+                                    <th style="padding:10px 15px;">Details</th>
+                                    <th style="padding:10px 15px; text-align:right; width:150px;">Amount</th>
+                                    <th style="padding:10px 15px; text-align:center; width:80px;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cio-tbody" style="font-size:0.9rem;">
+                                <!-- Injected via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Day Start Modal (Small Form) -->
+        <div class="modal-backdrop" id="day-start-modal">
+            <div class="modal" style="max-width: 400px; padding: 20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
+                    <h3 style="margin:0; font-size:1.1rem; color:#1e293b; font-weight:700;">Day Start Cash</h3>
+                </div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="font-size:0.85rem; font-weight:600; color:#475569;">Enter Starting Cash Amount</label>
+                    <input type="number" id="start-cash-input" min="0" step="0.01" style="width:100%; padding:10px; border:2px solid #e2e8f0; border-radius:8px; font-family:'Outfit';" placeholder="0.00">
+                </div>
+                <div style="text-align: right;">
+                    <button class="btn-primary" onclick="submitDayStart()" style="padding: 10px 20px; background:#10b981; font-weight:600;">Start Day</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Day End Modal (Today Summery Report) -->
+        <div class="modal-backdrop" id="day-end-modal">
+            <div class="modal" style="max-width: 500px; padding: 20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+                    <h3 style="margin:0; font-size:1.1rem; color:#1e293b; font-weight:700;">Today Summery Report</h3>
+                    <button class="modal-close" onclick="document.getElementById('day-end-modal').classList.remove('open')" style="background:#e2e8f0;border-radius:50%;width:24px;height:24px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-xmark" style="font-size:10px;"></i></button>
+                </div>
+                <div style="text-align:center; margin-bottom: 15px;">
+                    <div style="font-weight:700; font-size:0.9rem;">Store: <span id="de-store-name"></span></div>
+                    <div style="font-weight:700; font-size:0.9rem;" id="de-valid-date">Valid Date: 2026-10-04</div>
+                </div>
+                <div style="border: 1px solid #000;">
+                    <table style="width:100%; border-collapse:collapse; font-size:0.9rem; color:#000;">
+                        <tr><td style="border:1px solid #000; padding:5px 8px;">Day Start Cash Amount</td><td style="border:1px solid #000; padding:5px 8px; text-align:right;" id="de-start">0.00</td></tr>
+                        <tr><td style="border:1px solid #000; padding:5px 8px;">Discount Amount</td><td style="border:1px solid #000; padding:5px 8px; text-align:right;" id="de-discount">0.00</td></tr>
+                        <tr><td style="border:1px solid #000; padding:5px 8px;">My Expenses</td><td style="border:1px solid #000; padding:5px 8px; text-align:right;" id="de-expenses">0.00</td></tr>
+                        <tr><td style="border:1px solid #000; padding:5px 8px;">Total Cash of the Day</td><td style="border:1px solid #000; padding:5px 8px; text-align:right;" id="de-total-cash">0.00</td></tr>
+                        <tr><td style="border:1px solid #000; padding:5px 8px;">Total Profit of the Day</td><td style="border:1px solid #000; padding:5px 8px; text-align:right;" id="de-profit">0.00</td></tr>
+                        <tr><td style="border:1px solid #000; padding:5px 8px;">Cash Balance</td><td style="border:1px solid #000; padding:5px 8px; text-align:right;" id="de-expected">0.00</td></tr>
+                        <tr><td style="border:1px solid #000; padding:5px 8px;">Hand Count Cash Amount</td><td style="border:1px solid #000; padding:0; text-align:right; background:#fef08a;"><input type="number" id="actual-cash-input" style="width:100%; border:none; background:transparent; text-align:right; padding:5px 8px; font-family:'Outfit'; font-size:0.9rem; outline:none;" value="0.00"></td></tr>
+                        <tr><td style="border:1px solid #000; padding:5px 8px;">Difference</td><td style="border:1px solid #000; padding:5px 8px; text-align:right; font-weight:700;" id="de-diff">0.00</td></tr>
+                    </table>
+                </div>
+                <div style="margin-top: 15px;">
+                    <button class="btn-primary" onclick="submitDayEnd()" style="padding: 8px 15px; background:#3b82f6; font-size:0.9rem; font-weight:600;">Day End & Print</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+    <!-- Printable Receipt -->
+    <div id="print-receipt" style="display:none; padding:20px; font-family:monospace; font-size:14px; line-height:1.5;">
+        <div style="text-align:center;" id="print-logo-container"></div><h2 style="text-align:center; font-size:18px; margin:0 0 10px 0;">TODAY SUMMARY REPORT</h2>
+        <div style="text-align:center; margin-bottom: 20px;">
+            Store: <span id="print-store-name"></span><br>            Valid Date: <span id="print-date"></span>
+        </div>
+        <table style="width:100%; border-collapse:collapse; margin-bottom:20px;">
+            <tr><td style="padding:4px 0;">Day Start Cash Amount</td><td style="text-align:right;" id="print-start">0.00</td></tr>
+            <tr><td style="padding:4px 0;">Discount Amount</td><td style="text-align:right;" id="print-discount">0.00</td></tr>
+            <tr><td style="padding:4px 0;">My Expenses</td><td style="text-align:right;" id="print-expenses">0.00</td></tr>
+            <tr><td style="padding:4px 0;">Total Cash of the Day</td><td style="text-align:right;" id="print-total-cash">0.00</td></tr>
+            <tr><td style="padding:4px 0;">Total Profit of the Day</td><td style="text-align:right;" id="print-profit">0.00</td></tr>
+            <tr><td style="padding:4px 0;">Cash Balance</td><td style="text-align:right;" id="print-expected">0.00</td></tr>
+            <tr><td style="padding:4px 0;">Hand Count Cash</td><td style="text-align:right;" id="print-actual">0.00</td></tr>
+            <tr style="font-weight:bold; border-top:1px dashed #000; border-bottom:1px dashed #000;">
+                <td style="padding:8px 0;">Difference</td><td style="text-align:right;" id="print-diff">0.00</td>
+            </tr>
+        </table>
+        <div style="text-align:center; margin-top:30px; font-size:12px;">
+            *** END OF REPORT ***
+        </div>
+    </div>
+
+    <script type="module" src="/src/pos.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+

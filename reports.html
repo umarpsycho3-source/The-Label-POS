@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Reports | POS System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
+<link rel="stylesheet" href="/src/navbar.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#3b82f6;--indigo:#6366f1;--green:#10b981;--yellow:#f59e0b;
+  --red:#ef4444;--cyan:#06b6d4;--purple:#8b5cf6;
+  --navy:#0f172a;--bg:#f1f5f9;--card:#ffffff;
+  --text:#1e293b;--sub:#64748b;--border:#e2e8f0;
+  --radius:16px;--shadow:0 4px 24px rgba(0,0,0,.07);
+}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* PAGE HEADER */
+.page-header{
+  background:linear-gradient(135deg,#1e1b4b 0%,#172554 100%);
+  padding:28px 32px 22px;color:#fff;position:relative;overflow:hidden;
+}
+.page-header::before{
+  content:'';position:absolute;bottom:-50px;right:-30px;
+  width:300px;height:300px;border-radius:50%;
+  background:radial-gradient(circle,rgba(99,102,241,.2),transparent 70%);
+}
+.page-header h1{font-size:1.7rem;font-weight:800;letter-spacing:-.3px}
+.page-header p{color:rgba(255,255,255,.6);font-size:.9rem;margin-top:3px}
+
+/* TABS */
+.tabs-wrapper{background:#fff;border-bottom:2px solid var(--border);padding:0 32px;
+  position:sticky;top:62px;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.04)}
+.tabs{display:flex;gap:0;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{
+  padding:16px 20px;border:none;background:transparent;cursor:pointer;
+  font-family:'Outfit',sans-serif;font-size:.85rem;font-weight:600;
+  color:var(--sub);white-space:nowrap;position:relative;transition:all .25s;
+  display:flex;align-items:center;gap:7px;
+}
+.tab-btn::after{
+  content:'';position:absolute;bottom:-2px;left:0;right:0;
+  height:3px;border-radius:3px 3px 0 0;
+  background:linear-gradient(135deg,var(--blue),var(--indigo));
+  transform:scaleX(0);transition:transform .25s;
+}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{
+  color:var(--indigo);
+  text-shadow:0 0 12px rgba(99,102,241,.3);
+}
+.tab-btn.active::after{transform:scaleX(1)}
+.tab-btn i{font-size:.9rem}
+
+/* TAB CONTENT */
+.tab-pane{display:none;padding:28px 32px 40px;animation:fadeSlide .3s ease}
+.tab-pane.active{display:block}
+@keyframes fadeSlide{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* STAT CARDS */
+.stat-grid{display:grid;gap:18px;margin-bottom:26px}
+.stat-grid-7{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+.stat-grid-8{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+.stat-grid-6{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+.stat-grid-4{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+.stat-card{
+  background:var(--card);border-radius:var(--radius);padding:20px 22px;
+  box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.8);
+  cursor:default;transition:transform .3s,box-shadow .3s;
+  transform-style:preserve-3d;perspective:600px;
+  position:relative;overflow:hidden;
+}
+.stat-card::before{
+  content:'';position:absolute;top:-30px;right:-20px;
+  width:100px;height:100px;border-radius:50%;
+  background:var(--accent-light,rgba(59,130,246,.08));
+  pointer-events:none;
+}
+.stat-card:hover{
+  transform:translateY(-8px) rotateX(4deg) scale(1.02);
+  box-shadow:0 16px 40px rgba(0,0,0,.13);
+}
+.stat-card .icon{
+  width:42px;height:42px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;margin-bottom:12px;
+  background:var(--accent-light,rgba(59,130,246,.1));
+  color:var(--accent,var(--blue));
+}
+.stat-card .label{font-size:.73rem;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:.6px}
+.stat-card .value{font-size:1.6rem;font-weight:800;margin-top:4px;line-height:1}
+.stat-card .sub{font-size:.75rem;color:var(--sub);margin-top:5px}
+
+/* accent colors */
+.ac-blue{--accent:var(--blue);--accent-light:rgba(59,130,246,.1)}
+.ac-green{--accent:var(--green);--accent-light:rgba(16,185,129,.1)}
+.ac-yellow{--accent:var(--yellow);--accent-light:rgba(245,158,11,.1)}
+.ac-red{--accent:var(--red);--accent-light:rgba(239,68,68,.1)}
+.ac-indigo{--accent:var(--indigo);--accent-light:rgba(99,102,241,.1)}
+.ac-cyan{--accent:var(--cyan);--accent-light:rgba(6,182,212,.1)}
+.ac-purple{--accent:var(--purple);--accent-light:rgba(139,92,246,.1)}
+
+/* SECTION CARD */
+.section-card{
+  background:var(--card);border-radius:var(--radius);
+  box-shadow:var(--shadow);border:1px solid var(--border);
+  margin-bottom:22px;overflow:hidden;
+}
+.section-head{
+  padding:16px 22px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
+}
+.section-head h3{font-size:1rem;font-weight:700;display:flex;align-items:center;gap:8px}
+.section-head h3 i{color:var(--blue)}
+.section-body{padding:20px 22px}
+
+/* PICKERS & BUTTONS */
+.picker-row{display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap}
+.picker-row label{font-size:.85rem;font-weight:600;color:var(--sub)}
+.picker-row input[type=date],.picker-row input[type=month],.picker-row input[type=text]{
+  font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:600;
+  border:2px solid var(--border);border-radius:10px;padding:8px 14px;
+  color:var(--text);background:#fff;cursor:pointer;transition:border .2s;outline:none;
+}
+.picker-row input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+.btn{
+  font-family:'Outfit',sans-serif;font-size:.82rem;font-weight:700;
+  border:none;border-radius:10px;padding:8px 16px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;transition:all .2s;
+}
+.btn-primary{background:linear-gradient(135deg,var(--blue),var(--indigo));color:#fff;box-shadow:0 2px 12px rgba(59,130,246,.3)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 18px rgba(59,130,246,.4)}
+.btn-green{background:linear-gradient(135deg,#10b981,#059669);color:#fff;box-shadow:0 2px 10px rgba(16,185,129,.3)}
+.btn-green:hover{transform:translateY(-1px)}
+.btn-sm{padding:6px 12px;font-size:.78rem;border-radius:8px}
+.btn-outline{background:transparent;border:2px solid var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--blue);color:var(--blue)}
+.btn-red{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff}
+.btn-yellow{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
+.btn-cyan{background:linear-gradient(135deg,#06b6d4,#0891b2);color:#fff}
+.btn-purple{background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#fff}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:.84rem}
+thead th{
+  background:#f8fafc;padding:11px 14px;text-align:left;
+  font-size:.72rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;
+  border-bottom:2px solid var(--border);white-space:nowrap;
+}
+tbody tr{border-bottom:1px solid #f1f5f9;transition:background .15s}
+tbody tr:hover{background:#f8fafc}
+tbody td{padding:11px 14px;vertical-align:middle}
+tbody tr:last-child{border-bottom:none}
+
+/* BADGES */
+.badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 10px;border-radius:999px;font-size:.73rem;font-weight:700;
+}
+.badge-blue{background:rgba(59,130,246,.12);color:var(--blue)}
+.badge-green{background:rgba(16,185,129,.12);color:var(--green)}
+.badge-yellow{background:rgba(245,158,11,.12);color:var(--yellow)}
+.badge-red{background:rgba(239,68,68,.12);color:var(--red)}
+.badge-purple{background:rgba(139,92,246,.12);color:var(--purple)}
+.badge-cyan{background:rgba(6,182,212,.12);color:var(--cyan)}
+.badge-gray{background:rgba(100,116,139,.12);color:var(--sub)}
+
+/* BAR CHARTS */
+.bar-chart{display:flex;flex-direction:column;gap:14px;padding:4px 0}
+.bar-row{display:flex;align-items:center;gap:12px}
+.bar-label{width:130px;font-size:.82rem;font-weight:600;color:var(--text);text-align:right;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{flex:1;height:22px;background:#f1f5f9;border-radius:999px;overflow:hidden}
+.bar-fill{
+  height:100%;border-radius:999px;
+  background:linear-gradient(90deg,var(--blue),var(--indigo));
+  transition:width 1s cubic-bezier(.4,0,.2,1);
+  display:flex;align-items:center;padding-left:8px;
+  font-size:.7rem;font-weight:700;color:#fff;
+}
+.bar-val{width:90px;font-size:.82rem;font-weight:700;color:var(--sub);flex-shrink:0}
+.bar-fill-green{background:linear-gradient(90deg,var(--green),#059669)}
+.bar-fill-yellow{background:linear-gradient(90deg,var(--yellow),#d97706)}
+.bar-fill-red{background:linear-gradient(90deg,var(--red),#dc2626)}
+.bar-fill-purple{background:linear-gradient(90deg,var(--purple),#7c3aed)}
+.bar-fill-cyan{background:linear-gradient(90deg,var(--cyan),#0891b2)}
+
+/* PAYMENT FLOW */
+.pay-flow{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:16px}
+.pay-box{
+  background:var(--card);border-radius:14px;padding:16px;
+  border:1px solid var(--border);text-align:center;position:relative;overflow:hidden;
+  transition:transform .2s;
+}
+.pay-box:hover{transform:translateY(-4px)}
+.pay-box .pay-pct{font-size:2rem;font-weight:900;line-height:1}
+.pay-box .pay-name{font-size:.75rem;font-weight:600;color:var(--sub);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+.pay-box .pay-amt{font-size:.88rem;font-weight:700;margin-top:6px}
+.pay-box .pay-bar{height:5px;border-radius:999px;margin-top:10px;background:#f1f5f9;overflow:hidden}
+.pay-box .pay-bar-fill{height:100%;border-radius:999px;transition:width 1s ease}
+
+/* RANKED LIST */
+.ranked-list{display:flex;flex-direction:column;gap:10px}
+.rank-item{
+  display:flex;align-items:center;gap:12px;padding:12px 16px;
+  background:#f8fafc;border-radius:12px;border:1px solid var(--border);
+  transition:transform .2s;
+}
+.rank-item:hover{transform:translateX(4px);background:#f0f9ff}
+.rank-no{
+  width:28px;height:28px;border-radius:8px;
+  background:linear-gradient(135deg,var(--blue),var(--indigo));
+  color:#fff;font-size:.8rem;font-weight:800;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.rank-no.gold{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.rank-no.silver{background:linear-gradient(135deg,#94a3b8,#64748b)}
+.rank-no.bronze{background:linear-gradient(135deg,#cd7c4e,#a0522d)}
+.rank-info{flex:1;min-width:0}
+.rank-info .rname{font-size:.88rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rank-info .rbar-track{height:6px;background:#e2e8f0;border-radius:999px;margin-top:5px}
+.rank-info .rbar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--blue),var(--indigo));transition:width 1s ease}
+.rank-stats{text-align:right;flex-shrink:0}
+.rank-stats .rval{font-size:.92rem;font-weight:800}
+.rank-stats .rsub{font-size:.72rem;color:var(--sub)}
+
+/* BARCODE GRID */
+.bc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-top:16px}
+.bc-card{
+  background:#fff;border:2px solid var(--border);border-radius:12px;
+  padding:14px;text-align:center;transition:all .2s;cursor:pointer;position:relative;
+}
+.bc-card:hover{border-color:var(--blue);box-shadow:0 4px 18px rgba(59,130,246,.15);transform:translateY(-3px)}
+.bc-card.selected{border-color:var(--indigo);background:rgba(99,102,241,.04)}
+.bc-card svg{max-width:100%;height:60px}
+.bc-card .bc-name{font-size:.82rem;font-weight:700;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bc-card .bc-price{font-size:.9rem;font-weight:800;color:var(--green)}
+.bc-check{position:absolute;top:8px;right:8px;width:20px;height:20px;accent-color:var(--indigo)}
+
+/* MODAL */
+.modal-backdrop{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);
+  z-index:500;align-items:center;justify-content:center;
+  padding:20px;backdrop-filter:blur(4px);
+}
+.modal-backdrop.open{display:flex}
+.modal{
+  background:#fff;border-radius:20px;max-width:900px;width:100%;
+  max-height:90vh;overflow-y:auto;
+  animation:slideUp .3s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 24px 80px rgba(0,0,0,.25);
+}
+@keyframes slideUp{
+  from{opacity:0;transform:translateY(60px) scale(.95)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+.modal-head{
+  padding:20px 26px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;background:#fff;z-index:10;border-radius:20px 20px 0 0;
+}
+.modal-head h3{font-size:1.1rem;font-weight:800}
+.modal-close{
+  width:32px;height:32px;border-radius:8px;border:none;
+  background:#f1f5f9;cursor:pointer;font-size:1rem;color:var(--sub);
+  display:flex;align-items:center;justify-content:center;transition:all .2s;
+}
+.modal-close:hover{background:var(--red);color:#fff}
+.modal-body{padding:26px}
+.modal-foot{padding:16px 26px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+
+/* INVOICE STYLES */
+.inv-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.inv-company{font-size:1.4rem;font-weight:900;color:var(--navy)}
+.inv-company small{display:block;font-size:.78rem;font-weight:400;color:var(--sub)}
+.inv-meta{text-align:right}
+.inv-meta .inv-no{font-size:1.1rem;font-weight:800;color:var(--indigo)}
+.inv-meta small{display:block;font-size:.78rem;color:var(--sub)}
+.inv-parties{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:22px}
+.inv-party h4{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--sub);margin-bottom:6px}
+.inv-party p{font-size:.88rem;font-weight:600;line-height:1.6}
+.inv-table-wrap{margin-bottom:18px;border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.inv-table-wrap table{font-size:.84rem}
+.inv-totals{text-align:right;margin-bottom:18px}
+.inv-totals table{margin-left:auto;font-size:.88rem}
+.inv-totals td{padding:4px 10px}
+.inv-totals tr.total-row td{font-weight:800;font-size:1rem;border-top:2px solid var(--border)}
+.inv-totals tr.due-row td{font-weight:800;font-size:1.05rem;color:var(--red)}
+.inv-bc{text-align:center;margin-top:16px}
+.inv-bc svg{height:50px}
+
+/* SEARCH ROW */
+.search-row{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;align-items:center}
+.search-input{
+  font-family:'Outfit',sans-serif;font-size:.85rem;padding:9px 14px;
+  border:2px solid var(--border);border-radius:10px;outline:none;
+  transition:border .2s;flex:1;min-width:180px;
+}
+.search-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+
+/* PRINT AREA */
+#print-area{display:none}
+@media print{
+  body>*:not(#print-area){display:none!important}
+  #print-area{display:block!important}
+  .no-print{display:none!important}
+  #print-area.mode-invoice .print-invoice{display:block}
+  #print-area.mode-receipt .print-receipt{display:block}
+  #print-area.mode-receipt{width:320px!important}
+  #print-area.mode-labels .print-labels{display:block}
+}
+.print-invoice,.print-receipt,.print-labels{display:none}
+
+.empty-state{text-align:center;padding:40px 20px;color:var(--sub)}
+.empty-state i{font-size:2.5rem;margin-bottom:12px;opacity:.35}
+.empty-state p{font-size:.88rem}
+
+@media(max-width:768px){
+  .tab-pane{padding:20px 16px}
+  .tabs-wrapper{padding:0 16px}
+  .page-header{padding:20px 18px}
+  .inv-parties{grid-template-columns:1fr}
+}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-links">
+    <a href="/dashboard.html"><i class="fa-solid fa-gauge-high"></i><br>Dashboard</a>
+    <a href="/pos.html"><i class="fa-solid fa-cash-register"></i><br>POS</a>
+    <a href="/sales.html"><i class="fa-solid fa-cart-shopping"></i><br>Sales</a>
+    <a href="/products.html"><i class="fa-solid fa-tags"></i><br>Products</a>
+    <a href="/stock.html"><i class="fa-solid fa-box"></i><br>Stock</a>
+    <a href="/customers.html"><i class="fa-solid fa-users"></i><br>Customers</a>
+    <a href="/balance.html"><i class="fa-solid fa-hand-holding-dollar"></i><br>Balance</a>
+    <a href="/cheque.html"><i class="fa-solid fa-money-check-dollar"></i><br>Cheque</a>
+    <a href="/expenses.html"><i class="fa-solid fa-money-bill-transfer"></i><br>Expenses</a>
+    <a href="/reports.html" class="active"><i class="fa-solid fa-chart-line"></i><br>Reports</a>
+    <a href="/" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i><br>Logout</a>
+    <a href="/settings.html"><i class="fa-solid fa-gear"></i><br>Settings</a>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <h1><i class="fa-solid fa-chart-pie" style="margin-right:10px;color:#818cf8"></i>Reports & Analytics</h1>
+  <p>Business insights, performance metrics, and financial summaries</p>
+</div>
+
+<!-- TABS -->
+<div class="tabs-wrapper">
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" onclick="switchTab('today',this)" id="tab-today"><i class="fa-solid fa-sun"></i> Today's Sales</button>
+    <button class="tab-btn" onclick="switchTab('dayend',this)" id="tab-dayend"><i class="fa-solid fa-moon"></i> Day End</button>
+    <button class="tab-btn" onclick="switchTab('monthly',this)" id="tab-monthly"><i class="fa-solid fa-calendar-days"></i> Monthly</button>
+    <button class="tab-btn" onclick="switchTab('credit',this)" id="tab-credit"><i class="fa-solid fa-credit-card"></i> Credit Report</button>
+    <button class="tab-btn" onclick="switchTab('products',this)" id="tab-products"><i class="fa-solid fa-box-open"></i> Product Analysis</button>
+    <button class="tab-btn" onclick="switchTab('invoices',this)" id="tab-invoices"><i class="fa-solid fa-file-invoice"></i> Invoices &amp; Receipts</button>
+    <button class="tab-btn" onclick="switchTab('barcodes',this)" id="tab-barcodes"><i class="fa-solid fa-barcode"></i> Barcode Labels</button>
+  </div>
+</div>
+
+<!-- TAB 1: TODAY'S SALES -->
+<div id="pane-today" class="tab-pane active">
+  <div class="picker-row">
+    <label><i class="fa-solid fa-calendar"></i> Date:</label>
+    <input type="date" id="today-date"/>
+    <button class="btn btn-primary" onclick="renderToday()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+  </div>
+  <div class="stat-grid stat-grid-7" id="today-stats"></div>
+  <div class="two-col">
+    <div class="section-card">
+      <div class="section-head"><h3><i class="fa-solid fa-chart-pie"></i> Payment Breakdown</h3></div>
+      <div class="section-body"><div id="today-pay-flow" class="pay-flow"></div></div>
+    </div>
+    <div class="section-card">
+      <div class="section-head"><h3><i class="fa-solid fa-fire"></i> Top 5 Products</h3></div>
+      <div class="section-body"><div class="bar-chart" id="today-top-products"></div></div>
+    </div>
+  </div>
+  <div class="section-card">
+    <div class="section-head"><h3><i class="fa-solid fa-list"></i> Transactions</h3><span id="today-tx-count" class="badge badge-blue">0 bills</span></div>
+    <div class="section-body" style="padding:0">
+      <div class="tbl-wrap"><table id="today-tx-table">
+        <thead><tr><th>Invoice #</th><th>Time</th><th>Customer</th><th>Items</th><th>Gross</th><th>Discount</th><th>Total</th><th>Cash</th><th>Card</th><th>Cheque</th><th>Due</th><th>Actions</th></tr></thead>
+        <tbody id="today-tx-body"></tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 2: DAY END -->
+<div id="pane-dayend" class="tab-pane">
+  <div class="picker-row">
+    <label><i class="fa-solid fa-calendar"></i> Date:</label>
+    <input type="date" id="dayend-date"/>
+    <button class="btn btn-primary" onclick="renderDayEnd()"><i class="fa-solid fa-rotate"></i> Refresh</button><button class="btn btn-primary" onclick="window.print()" style="margin-left:10px;"><i class="fa-solid fa-print"></i> Print Report</button>
+  </div>
+  <div class="stat-grid stat-grid-8" id="dayend-stats"></div>
+  <div class="two-col">
+    <div class="section-card">
+      <div class="section-head"><h3><i class="fa-solid fa-money-bill-wave"></i> Payment Methods</h3></div>
+      <div class="section-body"><div id="dayend-pay-flow" class="pay-flow"></div></div>
+    </div>
+    <div class="section-card">
+      <div class="section-head"><h3><i class="fa-solid fa-chart-bar"></i> Cash Flow Chart</h3></div>
+      <div class="section-body"><div class="bar-chart" id="dayend-bar-chart"></div></div>
+    </div>
+  </div>
+  <div class="section-card">
+    <div class="section-head"><h3><i class="fa-solid fa-list"></i> All Bills</h3><span id="dayend-bill-count" class="badge badge-indigo">0 bills</span></div>
+    <div class="section-body" style="padding:0">
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Invoice #</th><th>Time</th><th>Customer</th><th>Total</th><th>Methods</th><th>Due</th><th>Actions</th></tr></thead>
+        <tbody id="dayend-bill-body"></tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 3: MONTHLY -->
+<div id="pane-monthly" class="tab-pane">
+  <div class="picker-row">
+    <label><i class="fa-solid fa-calendar-days"></i> Month:</label>
+    <input type="month" id="monthly-month"/>
+    <button class="btn btn-primary" onclick="renderMonthly()"><i class="fa-solid fa-rotate"></i> Refresh</button><button class="btn btn-primary" onclick="window.print()" style="margin-left:10px;"><i class="fa-solid fa-print"></i> Print Report</button>
+  </div>
+  <div class="stat-grid stat-grid-6" id="monthly-stats"></div>
+  <div class="two-col">
+    <div class="section-card">
+      <div class="section-head"><h3><i class="fa-solid fa-table"></i> Daily Breakdown</h3></div>
+      <div class="section-body" style="padding:0">
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Date</th><th>Bills</th><th>Revenue</th><th>Cash</th><th>Card</th><th>Cheque</th><th>Profit</th><th>Margin</th><th>Credit Due</th></tr></thead>
+          <tbody id="monthly-daily-body"></tbody>
+        </table></div>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-head"><h3><i class="fa-solid fa-trophy"></i> Top Products (Month)</h3></div>
+      <div class="section-body"><div class="ranked-list" id="monthly-top-products"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 4: CREDIT REPORT -->
+<div id="pane-credit" class="tab-pane">
+  <div class="stat-grid stat-grid-4" id="credit-stats"></div>
+  <div class="two-col">
+    <div class="section-card">
+      <div class="section-head"><h3><i class="fa-solid fa-triangle-exclamation"></i> Overdue Accounts (30d+)</h3></div>
+      <div class="section-body" style="padding:0">
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Customer</th><th>Phone</th><th>Last Sale</th><th>Outstanding</th><th>Action</th></tr></thead>
+          <tbody id="credit-overdue-body"></tbody>
+        </table></div>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-head"><h3><i class="fa-solid fa-clock-rotate-left"></i> Recent Credit Sales</h3></div>
+      <div class="section-body" style="padding:0">
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Invoice</th><th>Date</th><th>Customer</th><th>Total</th><th>Due</th></tr></thead>
+          <tbody id="credit-recent-body"></tbody>
+        </table></div>
+      </div>
+    </div>
+  </div>
+  <div class="section-card">
+    <div class="section-head"><h3><i class="fa-solid fa-users"></i> Credit by Customer</h3></div>
+    <div class="section-body" style="padding:0">
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Customer</th><th>Phone</th><th>Total Purchases</th><th>Total Paid</th><th>Outstanding</th><th>Bills</th><th>Actions</th></tr></thead>
+        <tbody id="credit-customer-body"></tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 5: PRODUCT ANALYSIS -->
+<div id="pane-products" class="tab-pane">
+  <div class="stat-grid stat-grid-4" id="prod-stats"></div>
+  <div class="two-col">
+    <div class="section-card">
+      <div class="section-head"><h3><i class="fa-solid fa-fire"></i> Top Selling Products</h3></div>
+      <div class="section-body"><div class="ranked-list" id="prod-top-selling"></div></div>
+    </div>
+    <div class="section-card">
+      <div class="section-head"><h3><i class="fa-solid fa-sack-dollar"></i> Most Profitable Products</h3></div>
+      <div class="section-body"><div class="ranked-list" id="prod-top-profit"></div></div>
+    </div>
+  </div>
+  <div class="section-card">
+    <div class="section-head"><h3><i class="fa-solid fa-table"></i> Full Product Performance</h3></div>
+    <div class="section-body" style="padding:0">
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>#</th><th>Product</th><th>Category</th><th>Qty Sold</th><th>Revenue</th><th>Cost</th><th>Profit</th><th>Margin %</th></tr></thead>
+        <tbody id="prod-perf-body"></tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 6: INVOICES & RECEIPTS -->
+<div id="pane-invoices" class="tab-pane">
+  <div class="search-row">
+    <input class="search-input" type="text" id="inv-search" placeholder="Search by invoice #, customer, phone..." oninput="renderInvoices()"/>
+    <input type="date" id="inv-date-from" onchange="renderInvoices()"/>
+    <span style="font-size:.8rem;color:var(--sub)">to</span>
+    <input type="date" id="inv-date-to" onchange="renderInvoices()"/>
+    <button class="btn btn-outline btn-sm" onclick="document.getElementById('inv-search').value='';document.getElementById('inv-date-from').value='';document.getElementById('inv-date-to').value='';renderInvoices()"><i class="fa-solid fa-xmark"></i> Clear</button>
+  </div>
+  <div class="section-card">
+    <div class="section-head"><h3><i class="fa-solid fa-file-invoice"></i> All Invoices</h3><span id="inv-count" class="badge badge-blue">0</span></div>
+    <div class="section-body" style="padding:0">
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Invoice #</th><th>Date &amp; Time</th><th>Customer</th><th>Phone</th><th>Items</th><th>Total</th><th>Cash</th><th>Card</th><th>Cheque</th><th>Due</th><th>Actions</th></tr></thead>
+        <tbody id="inv-body"></tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 7: BARCODE LABELS -->
+<div id="pane-barcodes" class="tab-pane">
+  <div class="search-row">
+    <input class="search-input" type="text" id="bc-search" placeholder="Search products..." oninput="renderBarcodes()"/>
+    <button class="btn btn-primary" onclick="selectAllBarcodes()"><i class="fa-solid fa-check-double"></i> Select All</button>
+    <button class="btn btn-green" onclick="printBarcodeLabels()"><i class="fa-solid fa-print"></i> Print Selected</button>
+  </div>
+  <div class="bc-grid" id="bc-grid"></div>
+</div>
+
+<!-- INVOICE MODAL -->
+<div class="modal-backdrop" id="inv-modal" onclick="closeModal(event)">
+  <div class="modal" id="inv-modal-box">
+    <div class="modal-head">
+      <h3 id="modal-title"><i class="fa-solid fa-file-invoice" style="margin-right:8px;color:var(--indigo)"></i>Invoice</h3>
+      <button class="modal-close" onclick="document.getElementById('inv-modal').classList.remove('open')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-foot">
+      <button class="btn btn-primary" onclick="printInvoice()"><i class="fa-solid fa-print"></i> Print Invoice</button>
+      <button class="btn btn-cyan" onclick="printReceipt()"><i class="fa-solid fa-receipt"></i> Print Receipt</button>
+      <button class="btn btn-green" onclick="whatsAppCurrent()"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+      <button class="btn btn-outline" onclick="document.getElementById('inv-modal').classList.remove('open')"><i class="fa-solid fa-xmark"></i> Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRINT AREA -->
+<div id="print-area">
+  <div class="print-invoice" id="pa-invoice"></div>
+  <div class="print-receipt" id="pa-receipt"></div>
+  <div class="print-labels" id="pa-labels"></div>
+</div>
+
+<script type="module" src="/src/reports.js"></script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Customer Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/src/navbar.css">
+    <link rel="stylesheet" href="/src/dashboard.css">
+    <link rel="stylesheet" href="/src/customers.css">
+      <script type="module" src="/src/sync.js"></script>
+</head>
+  <body>
+    <div id="app">
+      <!-- Navbar -->
+      <nav class="navbar">
+        <div class="nav-links">
+          <a href="/dashboard.html"><i class="fa-solid fa-gauge-high"></i><br>Dashboard</a>
+          <a href="/pos.html"><i class="fa-solid fa-cash-register"></i><br>POS</a>
+          <a href="/sales.html"><i class="fa-solid fa-cart-shopping"></i><br>Sales</a>
+          <a href="/products.html"><i class="fa-solid fa-tags"></i><br>Products</a>
+          <a href="/stock.html"><i class="fa-solid fa-box"></i><br>Stock</a>
+          <a href="/customers.html" class="active"><i class="fa-solid fa-users"></i><br>Customers</a>
+          <a href="/balance.html"><i class="fa-solid fa-hand-holding-dollar"></i><br>Balance</a>
+          <a href="#"><i class="fa-solid fa-money-check-dollar"></i><br>Cheque</a>
+          <a href="/reports.html"><i class="fa-solid fa-chart-line"></i><br>Reports</a>
+          <a href="/" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i><br>Logout</a>
+          <a href="/settings.html"><i class="fa-solid fa-gear"></i><br>Settings</a>
+          </div>
+      </nav>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <header class="page-header">
+          <div>
+            <h1><i class="fa-solid fa-users" style="color:#3b82f6;"></i> Customer Management</h1>
+            <p>Manage customer details, credit limits, and view history.</p>
+          </div>
+          <button class="btn-dark" onclick="window.openCustomerModal()"><i class="fa-solid fa-circle-plus"></i> Add New Customer</button>
+        </header>
+
+        <div class="table-card">
+          <div class="table-header">
+            <h3><i class="fa-solid fa-list-ul"></i> Customer List</h3>
+            <div class="search-input" style="width: 400px; max-width: 100%;">
+              <i class="fa-solid fa-phone"></i>
+              <input type="text" id="search-customer" placeholder="Search by Contact Number..." autocomplete="off">
+              <i class="fa-solid fa-caret-down pos-caret" style="display:none;"></i>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>NO.</th>
+                  <th>ACTIONS</th>
+                  <th>PIN</th>
+                  <th>NAME</th>
+                  <th>MOBILE</th>
+                  <th>NIC</th>
+                  <th>CREDIT LIMIT</th>
+                  <th>REG. DATE</th>
+                  <th>BALANCE</th>
+                </tr>
+              </thead>
+              <tbody id="customer-tbody">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+    
+    <div id="modals-container"></div>
+    <script type="module" src="/src/customers.js"></script>
+  </body>
+</html>
+
+
+
+
+
